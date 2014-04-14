@@ -630,13 +630,11 @@ class Game():
                 self.tombstone_list = pickle.load(file_name)
                 for tomb in self.tombstone_list:
                     tomb.status = "Old"
-        except EOFError:
-            print"EOFError, pickling an empty list.."
-            self.tombstone_list = []
+        except (EOFError, IOError):
+            print"Error opening Tombstone.dat, pickling an empty list.."
             with open("tombstone.dat", "wb") as file_name:
+                self.tombstone_list = []
                 pickle.dump([], file_name)
-        except IOError:
-            print"Unable to load tombstone.dat, no tombstones will be loaded."
 
         # Add the random events
         self.random_blit.append(Event(max_pos=self.game_length, name="house", pos=4))
@@ -2183,8 +2181,6 @@ class Game():
             fnt = pygame.font.Font(None, text_fonts[font][1])
             the_sur = pygame.Surface((10, 10))
             the_sur.fill((255, 255, 255))
-#            calc_pos = (int(the_sur.get_width()/2 - text_fonts[font][1]/2),
-#                        int(the_sur.get_height()/2 - text_fonts[font][1]/2))
             the_sur.blit(fnt.render("T", 1, (0, 0, 0)), (0, 0))
             paint_menu_text_pulldown.blit(the_sur, (x_value, y_value))
             text_fonts[font] = (pygame.Rect((g_pos[0] + x_value,
@@ -2241,12 +2237,13 @@ class Game():
                     if event.key == pygame.K_z and is_ctrl:
                         if len(self.undos) > 1:
                             self.redos.append(self.undos.pop())
-                            self.canvas = self.undos[-1]
+                            self.canvas = self.undos[-1].copy()
                             break
                     if event.key == pygame.K_r and is_ctrl:
                         if len(self.redos) > 0:
                             self.undos.append(self.redos.pop())
-                            self.canvas = self.undos[-1]
+                            self.canvas = self.undos[-1].copy()
+                            print "Redos: " + str(len(self.redos))
                             break
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LCTRL:
@@ -2272,23 +2269,32 @@ class Game():
                         pygame.display.flip()
                         place_text = None
 
+                    # Colors
                     if show_pulldown == paint_menu_pulldown:
                         for c in paint_colors:
                             if paint_colors[c][0].collidepoint(line_end):
                                 cur_color = paint_colors[c][1]
+
+                    # Brush Size
                     elif show_pulldown == paint_menu_sizes_pulldown:
                         for s in brush_sizes:
                             if brush_sizes[s][0].collidepoint(line_end):
                                 cur_width = brush_sizes[s][1]
+
+                    # Font
                     elif show_pulldown == paint_menu_text_pulldown:
                         for t in text_fonts:
                             if text_fonts[t][0].collidepoint(line_end):
                                 place_text = pygame.font.Font(None, text_fonts[t][1])
+
+                    # Flood filling
                     if pygame.mouse.get_pressed() == (0, 0, 1) and not show_pulldown_rect.collidepoint(line_end):
-                        self.paint_bucket((line_end[0]-g_pos[0], line_end[1]-g_pos[1]),
-                                          self.canvas.get_at((line_end[0]-g_pos[0], line_end[1]-g_pos[1])),
-                                          cur_color, g_pos)
-            # Saves a copy of the canvas every time a mousebutton comes up
+                        if g_pos[0] <= line_end[0] <= g_pos[0]+self.canvas.get_width()-cur_width:
+                            self.paint_bucket((line_end[0]-g_pos[0], line_end[1]-g_pos[1]),
+                                              self.canvas.get_at((line_end[0]-g_pos[0], line_end[1]-g_pos[1])),
+                                              cur_color, g_pos)
+
+            # Saves a copy of the canvas
             if not any(pygame.key.get_pressed()) and not any(pygame.mouse.get_pressed()):
                 if not self.compare_surface(self.undos[-1], self.canvas):
                     self.undos.append(self.canvas.copy())
