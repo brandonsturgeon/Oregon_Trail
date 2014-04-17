@@ -21,7 +21,7 @@ clock = pygame.time.Clock()
 #######################
 # Beginning Variables #
 #######################
-#sampleDisease("Disease Name": (Chance to infect, Infectivity, Season, Health Change, (min recovery, maxrecover))}
+#sampleDisease("Disease Name": (Chance to infect, Infectivity, Season, Health Change, (min recovery, max recovery))}
 afflictions_dict = {"The Common Cold":  (10, 10, "winter", -2.5, (4, 10)),
                     "The Flu": (10, 10, "winter", -5.5, (9, 15)),
                     "Hunger": (0, 0, "none", -2, -1),
@@ -35,7 +35,7 @@ group_afflictions = []
 
 resource_path = "Resources\\"
 male_picture_list = ["maleface1", "maleface2", "maleface3", "maleface4", "maleface5"]
-female_picture_list = ["maleface2"]
+female_picture_list = ["maleface2"]  # Temporary until female faces are added
 
 ###########
 # Classes #
@@ -142,6 +142,7 @@ class PassengerTab(pygame.Surface):
         self.option_rect = self.option_image.get_rect()
 
 
+# Vague option button used in the passenger_tabs in the turn menu
 class OptionButton():
     def __init__(self, passenger_tab, option, size, hover):
         self.passenger_tab = passenger_tab
@@ -180,6 +181,7 @@ class ShowFaces():
         self.update()
 
 
+# Tombstone objects used to hold information about dead passengers
 class Tombstones():
     def __init__(self, position, status, passenger, cause_of_death, tomb_width, tomb_height):
         self.position = position
@@ -199,6 +201,7 @@ class Tombstones():
         self.tomb_rect.centerx += 2 * move_value
 
 
+# Creates the shopping menu for each town
 class Shop():
     def __init__(self, name, inventory, price_mod, group_inventory,
                  group_money, item_prices, position, blit_position, money):
@@ -304,6 +307,7 @@ class Shop():
                                                               rect_position=button_pos))
             self.yvalue += 30
 
+        # Shows each button
         for button in self.buy_button_list:
             self.shop_surface.blit(button.image, button.image_position)
 
@@ -398,6 +402,7 @@ class ScrollButton():
         self.rect = pygame.Rect(position, self.image.get_size())
 
 
+# Buffalo object used in the Hunting minigame
 class Buffalo():
     def __init__(self, pos_x, pos_y, picture, size):
         self.picture = picture
@@ -429,6 +434,7 @@ class Buffalo():
         self.target_y = pos_y
 
     def update(self):
+        # Checks the health and updates the health bar
         self.preimage = pygame.image.load(resource_path+"Images\\"+self.status+"_buffalo.png")
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
@@ -500,6 +506,7 @@ class Event():
         self.x_pos += 2
 
 
+# Used to create interactive buttons in the RiverOptionMenu
 class RiverOptionButton():
     def __init__(self, option, size, hover, pos):
         self.option = option
@@ -1289,20 +1296,29 @@ class Game():
                                        x_pos=(picture_list.index(path) * 100 + 50), y_pos=100))
             face_list[counter].create()
 
+        # Face picking loop
         while picking:
             clock.tick(30)
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.MOUSEMOTION:
                     self.mouse_x, self.mouse_y = event.pos
+
+                # Exit
                 if event.type == pygame.MOUSEBUTTONDOWN and self.exit_button_rect.collidepoint(
                         self.mouse_x, self.mouse_y):
                     pygame.quit()
                     quit()
+
+                # If a mouse button is clicked, or the enter button is hit
                 if (event.type == pygame.MOUSEBUTTONDOWN) or \
                         (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
+
+                    # If the user clicks, and it's not on the confirm button
                     if event.type == pygame.MOUSEBUTTONDOWN and not confirm_button_rect.collidepoint(
                             self.mouse_x, self.mouse_y):
+
+                        # If the user clicks on a face, move all faces and set cur_face
                         for face in face_list:
                             if face.face_rect.collidepoint(self.mouse_x, self.mouse_y):
                                 for replace in face_list:
@@ -1311,7 +1327,10 @@ class Game():
                                     else:
                                         replace.y_pos = 100
                                     replace.update()
-                                    cur_face = str(face.file_path)
+                                cur_face = str(face.file_path)
+                                break
+
+                    # If the user clicks "confirm" or hits enter
                     elif (event.type == pygame.MOUSEBUTTONDOWN and
                             confirm_button_rect.collidepoint(self.mouse_x, self.mouse_y)) or \
                             (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
@@ -1354,16 +1373,24 @@ class Game():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+
                 if event.type == pygame.MOUSEMOTION:
                     self.mouse_x, self.mouse_y = event.pos
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Darken the play button
                     if title and play_button.collidepoint(self.mouse_x, self.mouse_y):
                         play_button_col = (0, 0, 175)
+                    # Quit
                     if self.exit_button_rect.collidepoint(self.mouse_x, self.mouse_y):
                         pygame.quit()
                         quit()
+
                 if event.type == pygame.MOUSEBUTTONUP:
+                    # Reset the color of the play button
                     play_button_col = (0, 0, 255)
+
+                    # Break out of the loop and continue to char_create()
                     if title and play_button.collidepoint(self.mouse_x, self.mouse_y):
                         self.game_surface.fill((135, 206, 250))
                         self.game_window.blit(self.game_surface, (0, 0))
@@ -1398,9 +1425,12 @@ class Game():
         self.menu_bar.set_alpha(200)
         self.menu_button_list = []
         x_value = 5
+
+        # Creates the menu buttons
         for path in self.menu_list:
             self.menu_button_list.append(MenuButton(image=resource_path+"Images\\"+path+".png",
                                                     name=path))
+        # Manipulates and positions the menu buttons
         for button in self.menu_button_list:
             button_image = pygame.transform.scale(pygame.image.load(button.image), (32, 32))
             position = x_value, (self.menu_bar.get_height() - button_image.get_height())/2
@@ -1414,32 +1444,42 @@ class Game():
         passenger_list.remove(passenger)
         deceasedList.append(passenger)
         death_cause = "Unknown Causes"
+
+        # Checks for the first negative affliction and blames it for the death
         for affliction in passenger.afflictions:
             if affliction.health_change < 0:
                 death_cause = affliction.name
+                break
         append_tomb = Tombstones(position=self.group_pos, status="New",
                                  passenger=passenger, cause_of_death=death_cause,
                                  tomb_width=self.tomb_image.get_width(),
                                  tomb_height=self.tomb_image.get_height())
         self.tombstone_list.append(append_tomb)
         print "Creating tombstone at position: " + str(self.group_pos)
+
+        # Saving the tombstone to the file
         try:
+            # Builds a temporary list with everything in tombstone.dat and adds the new tombstone
             with open("tombstone.dat", "rb") as file_name:
                 temp_list = pickle.load(file_name)
                 temp_list.append(append_tomb)
 
+            # Writes over the tombstone.dat with the new tombstone added
             with open("tombstone.dat", "wb") as file_name:
                 pickle.dump(temp_list, file_name)
+
+        # Error handling
         except (EOFError, IOError) as error:
             print"Error occurred when saving to tombstone.dat. No tombstones will be saved."
             print"Error: "+error
 
         self.change_list.append(passenger.name+" has died.")
+        # Checks if it's game over
         if len(passenger_list) == 0:
             print"They're all dead,  Jim."
             self.game_over()
 
-    #Creates the option menu for the turn_menu_surface
+    # Creates the option menu for the turn_menu_surface
     def option_menu(self, passenger_tab, hover):
         pygame.font.init()
         option_offset = 20./6.5
@@ -1448,12 +1488,15 @@ class Game():
         option_menu_surface.fill((100, 100, 100))
         y_value = option_offset
 
+        # Checks if the option buttons have already been made, and makes them if they haven't
         if len(self.option_button_list) != len(self.option_list):
             for option in self.option_list:
                 self.option_button_list.append(OptionButton(passenger_tab=passenger_tab,
                                                             option=option,
                                                             size=(100, 20),
                                                             hover=hover))
+
+        # Positions the option buttons and creates their rectangle
         for button in self.option_button_list:
             option_menu_surface.blit(button.button_surface, (option_offset, y_value))
             button.rect = pygame.Rect((passenger_tab.position[0] +
@@ -1501,11 +1544,16 @@ class Game():
         passenger_info_surface.blit(info_font.render("Afflictions: ", 1, (255, 0, 0)),
                                     (0, passenger_picture.get_height() + passenger_picture.get_height()/10))
         x_value += info_font.size("Afflictions: ")[0]
+
+        # Blits "None" if they have to afflictions
         if len(self.affliction_button_list) == 0:
             passenger_info_surface.blit(info_font.render("None", 1, (0, 0, 255)),
                                         (x_value, passenger_picture.get_height() + passenger_picture.get_height()/10))
+
+        # Otherwise write as many affliction names as we can
         else:
             for affliction_button in self.affliction_button_list:
+                # Checks if the next affliction name can fit without going off the edges
                 if x_value + affliction_button.text_size[0] < passenger_info_surface.get_width():
                     passenger_info_surface.blit(info_font.render(affliction_button.name, 1, (0, 0, 255)),
                                                 (x_value,
@@ -1515,6 +1563,7 @@ class Game():
                                               blit_pos[1] + passenger_picture.get_height() +
                                               passenger_picture.get_height()/10))
                     x_value += affliction_button.text_size[0]
+                # If it can't, we've blitted as many as we can
                 else:
                     break
 
@@ -1531,6 +1580,8 @@ class Game():
         char_height = text.size("LOREM IPSUM")[1]
         y_value = char_height + 1
         cur_line = 0
+
+        # Blits everything within the visibility range
         for key in self.logbook_dict.keys():
             for line in self.logbook_dict[key]:
                 if cur_line in line_range:
@@ -1564,6 +1615,7 @@ class Game():
         yes_button_rect = pygame.Rect((0, 0), (0, 0))
         no_button_rect = pygame.Rect((0, 0), (0, 0))
 
+        # Global position used to place the rectangles
         pos = (self.game_window.get_width()/2 - confirm_window.get_width()/2,
                self.game_window.get_height()/2 - confirm_window.get_height()/2)
         font = pygame.font.Font(None, 20)
@@ -1571,9 +1623,12 @@ class Game():
 
         pixel_selection = ([pos[0], pos[0]+confirm_outline.get_width()],
                            [pos[1], pos[1]+confirm_outline.get_height()])
+
+        # Keeps track of what the window looked like so we can draw it again after the confirm window is gone
         saved_state = pygame.PixelArray(self.game_window)[pixel_selection[0][0]:pixel_selection[0][1],
                                                           pixel_selection[1][0]:pixel_selection[1][1]].make_surface()
 
+        # If the box is meant to be a box with "Okay" as the only option, or a box with text-entry
         if selection == "okay" or selection == "text_entry":
             okay_button = pygame.transform.scale(pygame.image.load(resource_path + "Images\\okay_button.png"), (50, 25))
             okay_button_pos = (self.game_window.get_width()/2 - okay_button.get_width()/2,
@@ -1582,11 +1637,14 @@ class Game():
 
             confirm_window.blit(okay_button, (confirm_window.get_width()/2 - okay_button.get_width()/2,
                                               confirm_window.get_height() - okay_button.get_height()))
+
+            # Text-entry specific stuff
             if selection == "text_entry":
                 entry_box = pygame.Surface((confirm_window.get_width() - 10, 40))
                 entry_box.fill((255, 255, 255))
                 confirm_window.blit(entry_box, (5, confirm_window.get_height()/2 - entry_box.get_height()))
 
+        # If the box is meant to be a box with "Yes" or "No" as the options
         elif selection == "yesno":
             yes_button = pygame.transform.scale(pygame.image.load(resource_path + "Images\\yes_button.png"), (50, 25))
             yes_button_pos = (self.game_window.get_width()/2 - yes_button.get_width() + 5,
@@ -1602,6 +1660,8 @@ class Game():
                                              confirm_window.get_height() - yes_button.get_height()))
             confirm_window.blit(no_button, (confirm_window.get_width()/2 + 5,
                                             confirm_window.get_height() - no_button.get_height()))
+
+        # Places the text with wrap-around provided by self.length_splitter()
         y_value = 0
         for l in self.length_splitter(font, message, confirm_window.get_width()):
             confirm_window.blit(font.render(l, 1, (255, 0, 0)), (0, y_value))
@@ -1611,33 +1671,46 @@ class Game():
         self.game_window.blit(confirm_outline, pos)
         pygame.display.flip()
         is_shift = False
+
+        # Main loop to wait for user-input
         while in_confirm_window:
-            events = pygame.event.get()
+            # Fill the entry_box with white, but only if it's a text-entry window
             if selection == "text_entry":
                 entry_box.fill((255, 255, 255))
+
+            events = pygame.event.get()
+            # Main event loop for the confirm_window
             for event in events:
                 if event.type == pygame.MOUSEMOTION:
                     self.mouse_x, self.mouse_y = event.pos
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Quit
                     if self.exit_button_rect.collidepoint(self.mouse_x, self.mouse_y):
                         in_confirm_window = False
                         pygame.quit()
                         break
+                    # Exit the confirm window
                     if okay_button_rect.collidepoint(self.mouse_x, self.mouse_y):
                         if selection == "text_entry":
                             return "".join(text), saved_state, pos
-                        else:
-                            return True
-                    if yes_button_rect.collidepoint(self.mouse_x, self.mouse_y):
                         return True
-                    if no_button_rect.collidepoint(self.mouse_x, self.mouse_y):
-                        return False
+
+                    # Returns True or False based on which option is chosen
+                    check_dict = {yes_button_rect: True, no_button_rect: False}
+                    for option in check_dict.keys():
+                        if option.collidepoint(self.mouse_x, self.mouse_y):
+                            return check_dict[option]
+
+                # Checks for the text-entry window
                 if event.type == pygame.KEYDOWN and selection == "text_entry":
+                    # Keeps track of if the shift button is pressed
                     if event.key in (pygame.K_LSHIFT, pygame.K_RSHIFT):
                         is_shift = True
+                    # Remove the last thing in text if the backspace is pressed
                     if event.key == pygame.K_BACKSPACE:
                         text.pop()
                     else:
+                        # Tries to add the key that got pressed, fails if it can't be converted using chr()
                         try:
                             if is_shift:
                                 text.append(chr(event.key).upper())
@@ -1645,10 +1718,12 @@ class Game():
                                 text.append(chr(event.key))
                         except ValueError:
                             print "Error: [" + str(event.key) + "] out of chr() range."
+                # Shift button is no longer being pressed
                 if event.type == pygame.KEYUP and selection == "text_entry":
                     if event.key in (pygame.K_LSHIFT, pygame.K_RSHIFT):
                         is_shift = False
 
+            # Renders the text if it's a text-entry window
             if selection == "text_entry":
                 entry_box.blit(font.render("".join(text), 1, (255, 0, 0)), (0, 0))
                 confirm_window.blit(entry_box, (5, confirm_window.get_height()/2 - entry_box.get_height()))
@@ -1747,9 +1822,10 @@ class Game():
         ref_buffalo = pygame.image.load(resource_path + "Images\\alive_buffalo.png")
         gun_shot_group = {}
         pygame.mouse.set_visible(False)
+
+        # Function used to determine the maximum buffalo that can appear
         val_funct = 20.46096855 / (1+0.0011517959*2.71828**(2.996546379*times))
         the_max = min(20, max(0, int(val_funct)))
-        print the_max
 
         # Create buffalos and give them random values
         for n in range(random.randint(0, the_max)):
@@ -1758,6 +1834,7 @@ class Game():
             random_x = random.randint(-self.game_window.get_width()/2, self.game_window.get_width()/2)
             buffalo_list.append(Buffalo(pos_x=random_x, pos_y=random_y, picture="alive", size=random_size))
 
+        # Creates an entry in gun_shot_group for every buffalo
         for b in buffalo_list:
             gun_shot_group[b] = []
 
@@ -1806,6 +1883,7 @@ class Game():
                     if event.type == pygame.MOUSEMOTION:
                         self.mouse_x, self.mouse_y = event.pos
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Quit
                         if self.exit_button_rect.collidepoint(self.mouse_x, self.mouse_y):
                             hunting = False
                         # Main shot detection
@@ -1814,12 +1892,14 @@ class Game():
                                 if not all(x == "0" for x in buffalo.image.get_at((self.mouse_x - buffalo.rect.x,
                                                                                    self.mouse_y - buffalo.rect.y))):
                                     if buffalo.status != "dead":
-                                        buffalo.health -= random.randint(40, 80)
+                                        # Subtracts a random amount of health and then check if they're dead
+                                        buffalo.health -= random.randint(40, 130)
                                         if buffalo.health <= 0:
                                             buffalo.health = 0
                                             buffalo.status = "dead"
                                             food_yield += buffalo.value
                                     shoot_countdown = 150
+                                    # Add a gunshot to the buffalo
                                     gun_shot_group[buffalo].append(((self.mouse_x -
                                                                      gun_shot.get_width()/2) - buffalo.rect.x,
                                                                     (self.mouse_y -
@@ -1878,6 +1958,7 @@ class Game():
             option_box = pygame.Surface((400, 300))
             option_box.fill((255, 255, 255))
             option_box_container = pygame.Surface((option_box.get_width() + 10, option_box.get_height() + 10))
+            # Global offset used to position rectangles
             global_offset = (self.game_window.get_width() -
                              option_box_container.get_width())/2, \
                             (self.game_window.get_height() -
@@ -1925,6 +2006,7 @@ class Game():
                 else:
                     box_hover = None
 
+            # Shades in the option being hovered over
             if box_hover is not None:
                 box_hover.update(True)
 
@@ -2010,6 +2092,7 @@ class Game():
             river_surface.fill((30, 144, 255))
             self.game_window.blit(river_surface, river_pos)
 
+            # Updates and moves the river debris
             for deb in river_debris_group:
                 self.game_window.blit(deb.image, (deb.rect.x, deb.rect.y))
                 deb.update(river_surface.get_size())
@@ -2035,13 +2118,19 @@ class Game():
                         wagon_pos[1] += 1
                     if keys[pygame.K_w]:
                         wagon_pos[1] -= 1
-        while option == "ferry":
-            self.group_money -= ferry_price
-            self.confirmation_window("You purchased a ride across for $" + str(ferry_price), "okay")
-            return "You purchased a ride across for $" + str(ferry_price)
+
+        # Checks if the group can afford a ferry, and ferries them across if they can
+        if option == "ferry":
+            if self.group_money >= ferry_price:
+                self.group_money -= ferry_price
+                self.confirmation_window("You purchased a ride across for $" + str(ferry_price), "okay")
+                return "You purchased a ride across for $" + str(ferry_price)
+            else:
+                self.confirmation_window("You don't have enough money to hire a ferry.", "okay")
 
     def house(self, event):
         item_changed = {}
+        # List of dictionaries, both positive and negative, used to inform the user of inventory changes
         gain_loss_phrases = [{"You found": " in the house.",
                               "You scavenged": " from the house",
                               "Found": " in the house.",
@@ -2053,11 +2142,13 @@ class Game():
         rand_phrase = random.choice(gain_loss_phrases[event.good_or_bad].keys())
         change_report = rand_phrase
         amount_items = random.randint(1, len(self.group_inventory))
+        # Randomly selects the items to gain or lose
         for n in range(amount_items):
             the_item = self.group_inventory.keys()[n]
             amount_changed = random.randint(0, self.group_inventory[the_item])
             item_changed[the_item] = amount_changed * event.good_or_bad
-            print item_changed
+
+        # Changes the inventory and modifies the change_report with the items
         for i in item_changed.keys():
             self.group_inventory[i] += item_changed[i]
             change_report += (str(", ["+str(abs(item_changed[i]))+" "+str(i)+"]"))
@@ -2087,11 +2178,14 @@ class Game():
             pix = checked.pop(0)
             if show_steps:
                 array = pygame.PixelArray(self.canvas)
+
+            # Replaces a 4x4 grid around the pixel with the selected color
             if array[pix] == self.canvas.map_rgb(color):
                 array[pix[0]-1:pix[0]+2, pix[1]-1:pix[1]+2].replace(color, fill_color)
                 for n in self.get_neighbors(pix):
                     if n not in checked:
                         checked.append(n)
+            # Used during development to visualize the flood_fill
             if show_steps:
                 del array
                 self.game_window.blit(self.canvas, g_pos)
@@ -2100,6 +2194,7 @@ class Game():
     # Returns true if the surfaces are the same, false if they are not
     @staticmethod
     def compare_surface(s1, s2):
+        # Uses PixelArrays to walk through each pixel and compare them
         s1pa = pygame.PixelArray(s1)
         s2pa = pygame.PixelArray(s2)
         for x, y in zip(s1pa, s2pa):
@@ -2108,6 +2203,8 @@ class Game():
                     return False
         return True
 
+    # Sloppy function used to go painting with a canvas
+    # Marked for a re-write
     def go_painting(self, passenger):
         g_pos = (0, 100)
         self.canvas.fill((255, 255, 255))
@@ -2220,13 +2317,17 @@ class Game():
         place_text = None
         is_ctrl = False
         pygame.mouse.set_visible(False)
+        # Sets the undos list to initially include the blank canvas
         self.undos.append(self.canvas.copy())
+
+        # Main painting loop
         while self.painting:
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.MOUSEMOTION:
                     line_end = event.pos
                     if pygame.mouse.get_pressed() == (1, 0, 0) and place_text is None:
+                        # Draws a line for as long as left mouse button is down and not placing text
                         if not show_pulldown_rect.collidepoint(line_end) and canvas_rect.collidepoint(line_end):
                             pygame.draw.line(self.canvas, cur_color, (line_start[0]-g_pos[0], line_start[1]-g_pos[1]),
                                              (line_end[0]-g_pos[0], line_end[1]-g_pos[1]), cur_width)
@@ -2234,17 +2335,20 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LCTRL:
                         is_ctrl = True
+
+                    # If the user undos something, remove the last thing in self.undos and put it in self.redos
                     if event.key == pygame.K_z and is_ctrl:
                         if len(self.undos) > 1:
                             self.redos.append(self.undos.pop())
                             self.canvas = self.undos[-1].copy()
                             break
+                    # If the user redos something, move the last thing in self.redos over to self.undos
                     if event.key == pygame.K_r and is_ctrl:
                         if len(self.redos) > 0:
                             self.undos.append(self.redos.pop())
                             self.canvas = self.undos[-1].copy()
-                            print "Redos: " + str(len(self.redos))
                             break
+                # Keeps track of the ctrl key used for shortcuts
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LCTRL:
                         is_ctrl = False
@@ -2252,6 +2356,7 @@ class Game():
                     if self.exit_button_rect.collidepoint(line_end):
                         self.painting = False
                         break
+                    # Checks if any of the buttons in the paint_menu_bar are clicked
                     for button in paint_menu_bar_buttons:
                         if paint_menu_bar_buttons[button][0].collidepoint(line_end):
                             if show_pulldown == paint_menu_bar_buttons[button][1]:
@@ -2260,6 +2365,8 @@ class Game():
                             else:
                                 show_pulldown = paint_menu_bar_buttons[button][1]
                                 show_pulldown_rect = pygame.Rect(g_pos, show_pulldown.get_size())
+
+                    # If we're placing text, call the confirmation_window and use it as a text-entry
                     if place_text is not None and not show_pulldown_rect.collidepoint(line_end):
                         entry_output = self.confirmation_window("Please enter text: ", "text_entry")
                         self.canvas.blit(place_text.render(entry_output[0], 1, cur_color),
@@ -2294,7 +2401,7 @@ class Game():
                                               self.canvas.get_at((line_end[0]-g_pos[0], line_end[1]-g_pos[1])),
                                               cur_color, g_pos)
 
-            # Saves a copy of the canvas
+            # Saves a copy of the canvas if it's different than the last thing in self.undos
             if not any(pygame.key.get_pressed()) and not any(pygame.mouse.get_pressed()):
                 if not self.compare_surface(self.undos[-1], self.canvas):
                     self.undos.append(self.canvas.copy())
@@ -2311,7 +2418,7 @@ class Game():
             cursor = pygame.Surface((cur_width, cur_width))
             cursor.fill(cur_color)
 
-            # Only show the cursor if it's on the canvas
+            # Only show the cursor if it's on the canvas and not on an option menu
             if g_pos[0] <= line_end[0] <= g_pos[0]+self.canvas.get_width()-cur_width and place_text is None:
                 if g_pos[1] <= line_end[1] <= g_pos[1]+self.canvas.get_height()-cur_width:
                     if not show_pulldown_rect.collidepoint(line_end):
@@ -2352,6 +2459,8 @@ class Game():
 def main():
     the_game = Game()
     random_y = 0
+
+    # Creates 200 random objects for the background
     for counter in xrange(201):
         rand_choice = random.choice(["cloud", "tree"])
         if rand_choice == "cloud":
@@ -2363,6 +2472,8 @@ def main():
         random_x = random.randint(-100, the_game.game_window.get_width()-11)
         the_game.shape_group.add(BackgroundSprites(size=10,  color=(255, 0, 0),
                                                    pos_x=random_x, pos_y=random_y, picture=rand_choice))
+
+    # Generates the afflictions from the afflictions_dict
     for affliction in afflictions_dict:
         stats = afflictions_dict[affliction]
         afflictions_list.append(AfflictionsClass(name=affliction, chance_to_infect=stats[0], infectivity=stats[1],
