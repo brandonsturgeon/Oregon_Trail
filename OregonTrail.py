@@ -644,9 +644,8 @@ class Game():
                 pickle.dump([], file_name)
 
         # Add the random events
-        self.random_blit.append(Event(max_pos=self.game_length, name="house", pos=4))
- #       for x in range(self.num_events):
-  #          self.random_blit.append(Event(max_pos=self.game_length))
+        for x in range(self.num_events):
+            self.random_blit.append(Event(max_pos=self.game_length))
         for event in self.random_blit:
             print "["+str(event.good_or_bad)+"] Event " + str(event.event_name) + " created at: " + str(event.event_pos)
 
