@@ -746,8 +746,8 @@ class Game():
                                           surface.get_height() - health_bar_container.get_height() - 5))
 
                 surface.blit(font.render(str(surface.passenger.health), 1, health_text_color),
-                             (surface.get_width() - (health_bar_container.get_width()) + 5,
-                              surface.get_height() - (health_bar_container.get_height()) - 5))
+                             (surface.get_width() - (health_bar_container.get_width()) + 12,
+                              surface.get_height() - (health_bar_container.get_height()) - 3))
                 surface.blit(status_font.render("Status: ", 1, (0, 0, 0)),
                              (75, surface.get_height() - 25))
 
@@ -914,11 +914,6 @@ class Game():
                     self.move_value = self.group_inventory["Horses"]
                     self.in_town.update(self.group_inventory, self.group_money)
                     self.in_town.render()
-
-                # Affliction Button collisions
-                if mouse_rect.collidelist([affliction.text_rect for affliction in self.affliction_button_list]) != -1:
-                    print"Colliding with: "+self.affliction_button_list[mouse_rect.collidelist(
-                        [affliction.text_rect for affliction in self.affliction_button_list])].name
 
                 # Menu bar collisions
                 if event.type == pygame.MOUSEBUTTONDOWN and mouse_rect.collidelist(
@@ -1572,8 +1567,8 @@ class Game():
     # Function to show the full logbook
     def show_logbook(self, line_range, render_pos):
         offset = 5
-        logbook_border = pygame.Surface((310, 510))
-        logbook_surface = pygame.Surface((300, 500))
+        logbook_border = pygame.Surface((410, 510))
+        logbook_surface = pygame.Surface((400, 500))
         logbook_surface.fill((255, 255, 255))
         text = pygame.font.Font(None, 15)
         char_height = text.size("LOREM IPSUM")[1]

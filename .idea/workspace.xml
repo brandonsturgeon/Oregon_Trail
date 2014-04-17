@@ -26,7 +26,7 @@
       <file leaf-file-name="OregonTrail.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/OregonTrail.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="148" column="28" selection-start="5005" selection-end="5005" vertical-scroll-proportion="0.4533762" vertical-offset="2234" max-vertical-offset="42381">
+            <state line="1996" column="43" selection-start="102266" selection-end="102266" vertical-scroll-proportion="0.57231724" vertical-offset="33564" max-vertical-offset="42296">
               <folding>
                 <element signature="e#110#123#0" expanded="true" />
               </folding>
@@ -52,9 +52,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="640" />
-    <option name="width" value="640" />
-    <option name="height" value="756" />
+    <option name="x" value="-4" />
+    <option name="y" value="-4" />
+    <option name="width" value="1288" />
+    <option name="height" value="764" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -110,7 +111,7 @@
     <property name="FullScreen" value="false" />
     <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
-    <property name="SearchEverywhereHistory" value="\" />
+    <property name="SearchEverywhereHistory" value="&#10;\" />
     <property name="LayoutCode.rearrangeEntriesPython" value="false" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -299,8 +300,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="640" y="0" width="640" height="756" extended-state="0" />
-    <editor active="true" />
+    <frame x="-4" y="-4" width="1288" height="764" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -794,7 +795,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/OregonTrail.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="148" column="28" selection-start="5005" selection-end="5005" vertical-scroll-proportion="0.4533762" vertical-offset="2234" max-vertical-offset="42381">
+        <state line="1996" column="43" selection-start="102266" selection-end="102266" vertical-scroll-proportion="0.57231724" vertical-offset="33564" max-vertical-offset="42296">
           <folding>
             <element signature="e#110#123#0" expanded="true" />
           </folding>
