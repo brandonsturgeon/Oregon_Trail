@@ -424,7 +424,10 @@ class Buffalo():
                     self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
         else:
             self.health_color = (255, float(self.health*2/self.max_health*255), 0)
-        self.health_bar.fill(self.health_color)
+        try:
+            self.health_bar.fill(self.health_color)
+        except TypeError:
+            self.health_bar.fill((0, 0, 0))
         self.health_bar_container.blit(self.health_bar, (0, 0))
         self.value = 20 * self.size
         self.rect = pygame.Rect((0, 0), self.image.get_size())
@@ -454,7 +457,13 @@ class Buffalo():
                 self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
             else:
                 self.health_color = (255, float(self.health*2/self.max_health*255), 0)
-            self.health_bar.fill(self.health_color)
+
+            # Band-aid solution
+            # It tends to crash here when self.health_color isn't a valid RGB for some reason
+            try:
+                self.health_bar.fill(self.health_color)
+            except TypeError:
+                self.health_bar.fill((0, 0, 0))
             self.health_bar_container.blit(self.health_bar, (0, 0))
         self.health_bar_container.blit(self.health_number, (self.health_bar_container.get_width()/2 -
                                                             self.health_number.get_width()/2,
@@ -534,7 +543,23 @@ class RiverOptionButton():
         self.surface.blit(self.button_font.render(self.option, 1, (0, 0, 0)),
                          (5, self.size[1]/2 - self.button_font.size("Lorem Ipsum")[1]/2))
 
+# Unused class to create small random events
+class MiniEvent():
+    def __init__(self):
+        self.events = {self.lose_wheel: 0.1, self.find_food: 1.5}
 
+        for event in self.events:
+            if round(random.uniform(0, 100), 1) == self.events[event]:
+                return event()
+
+    def lose_wheel(self):
+        return {"The wagon hit a large hole and lost a wheel!": {"Wheel": -1}}
+
+    def find_food(self):
+        rand_amount = random.randint(1, 50)
+        prompts = ["You come across an abandoned wagon and find [" + str(rand_amount) + "] Food.",
+                    "You find an unattended crop of potatoes. You're able to harvest [" + str(rand_amount) + "] Food."]
+        return {random.choice(prompts): {"Food": rand_amount}}
 # Main Game class
 class Game():
     def __init__(self):
@@ -1600,6 +1625,7 @@ class Game():
 
     # A vague confirmation window, used to present messages to the player
     def confirmation_window(self, message, selection):
+        pygame.key.set_repeat(0, 0)
         in_confirm_window = True
         confirm_outline = pygame.Surface((210, 110))
         confirm_window = pygame.Surface((200, 100))
@@ -1690,10 +1716,10 @@ class Game():
                         return True
 
                     # Returns True or False based on which option is chosen
-                    check_dict = {yes_button_rect: True, no_button_rect: False}
-                    for option in check_dict.keys():
-                        if option.collidepoint(self.mouse_x, self.mouse_y):
-                            return check_dict[option]
+                    if yes_button_rect.collidepoint(self.mouse_x, self.mouse_y):
+                        return True
+                    elif no_button_rect.collidepoint(self.mouse_x, self.mouse_y):
+                        return False
 
                 # Checks for the text-entry window
                 if event.type == pygame.KEYDOWN and selection == "text_entry":
@@ -1702,7 +1728,8 @@ class Game():
                         is_shift = True
                     # Remove the last thing in text if the backspace is pressed
                     if event.key == pygame.K_BACKSPACE:
-                        text.pop()
+                        if len(text) > 0:
+                            text.pop()
                     else:
                         # Tries to add the key that got pressed, fails if it can't be converted using chr()
                         try:
@@ -1720,7 +1747,7 @@ class Game():
             # Renders the text if it's a text-entry window
             if selection == "text_entry":
                 entry_box.blit(font.render("".join(text), 1, (255, 0, 0)), (0, 0))
-                confirm_window.blit(entry_box, (5, confirm_window.get_height()/2 - entry_box.get_height()))
+                confirm_window.blit(entry_box, (5, confirm_window.get_height()/2 - entry_box.get_height()+10))
             confirm_outline.blit(confirm_window, (5, 5))
             self.game_window.blit(confirm_outline, pos)
             pygame.display.flip()
@@ -1840,7 +1867,8 @@ class Game():
             cooldown_background.fill((0, 0, 0))
             cooldown_bar.fill((255, 0, 0))
             cooldown_background.blit(cooldown_bar, (0, 0))
-            self.game_surface.fill((0, 255, 0))
+            background_color = (0, 255, 0)
+            self.game_surface.fill(background_color)
             self.game_window.blit(self.game_surface, (0, 0))
 
             # Counts the number of buffalo killed
@@ -1883,8 +1911,10 @@ class Game():
                         # Main shot detection
                         if shoot_countdown <= 0:
                             if buffalo.rect.collidepoint(self.mouse_x, self.mouse_y):
-                                if not all(x == "0" for x in buffalo.image.get_at((self.mouse_x - buffalo.rect.x,
-                                                                                   self.mouse_y - buffalo.rect.y))):
+                                if buffalo.image.get_at((self.mouse_x - buffalo.rect.x,
+                                                         self.mouse_y - buffalo.rect.y)) != (0, 0, 0, 0):
+                                    print buffalo.image.get_at((self.mouse_x - buffalo.rect.x,
+                                                                self.mouse_y - buffalo.rect.y))
                                     if buffalo.status != "dead":
                                         # Subtracts a random amount of health and then check if they're dead
                                         buffalo.health -= random.randint(40, 130)
