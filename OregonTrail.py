@@ -484,7 +484,7 @@ class Buffalo():
 
 # The random event class
 class Event():
-    def __init__(self, max_pos, name=None, pos=-1):
+    def __init__(self, pos, name=None):
         self.good_or_bad = random.choice([-1, 1])
         self.surface = pygame.Surface((0, 0))
         self.random_events = [self.river, self.house]
@@ -496,10 +496,9 @@ class Event():
                 self.river()
             elif self.name == "house":
                 self.house()
-            self.event_pos = self.pos
         else:
             self.event = random.choice(self.random_events)()
-            self.event_pos = random.randint(5, max_pos - 5)
+        self.event_pos = self.pos
         self.x_pos = (-self.event_pos * 40) + 1280
 
     def river(self):
@@ -543,28 +542,12 @@ class RiverOptionButton():
         self.surface.blit(self.button_font.render(self.option, 1, (0, 0, 0)),
                          (5, self.size[1]/2 - self.button_font.size("Lorem Ipsum")[1]/2))
 
-# Unused class to create small random events
-class MiniEvent():
-    def __init__(self):
-        self.events = {self.lose_wheel: 0.1, self.find_food: 1.5}
 
-        for event in self.events:
-            if round(random.uniform(0, 100), 1) == self.events[event]:
-                return event()
-
-    def lose_wheel(self):
-        return {"The wagon hit a large hole and lost a wheel!": {"Wheel": -1}}
-
-    def find_food(self):
-        rand_amount = random.randint(1, 50)
-        prompts = ["You come across an abandoned wagon and find [" + str(rand_amount) + "] Food.",
-                    "You find an unattended crop of potatoes. You're able to harvest [" + str(rand_amount) + "] Food."]
-        return {random.choice(prompts): {"Food": rand_amount}}
 # Main Game class
 class Game():
     def __init__(self):
         # GUI Elements
-        self.game_window = pygame.display.set_mode((1280, 800))
+        self.game_window = pygame.display.set_mode((1280, 800), pygame.FULLSCREEN)
         self.game_surface = pygame.Surface((self.game_window.get_size())).convert()
         self.game_surface.fill((135, 206, 250))
         self.game_window.blit(self.game_surface,  (0, 0))
@@ -668,9 +651,29 @@ class Game():
                 self.tombstone_list = []
                 pickle.dump([], file_name)
 
-        # Add the random events
+        # Add the random events #
         for x in range(self.num_events):
-            self.random_blit.append(Event(max_pos=self.game_length))
+            # Calculates the position of each event, they must be at least 20 turns away from each other
+            # loop_counter is used to make sure that too much time isn't spent on finding a valid position
+            valid_pos = False
+            loop_counter = 0
+            while not valid_pos:
+                rand_pos = random.randint(1, self.game_length)
+
+                # Break at 100th loop to make sure we're not stuck here
+                if loop_counter >= 100:
+                    self.random_blit.append(Event(pos=rand_pos))
+                    valid_pos = True
+
+                # Checks the position to make sure it's not within 20 units of another
+                for pos in [x.pos for x in self.random_blit]:
+                    if abs(rand_pos - pos) <= 20:
+                        break
+                else:
+                    self.random_blit.append(Event(pos=rand_pos))
+                    valid_pos = True
+                loop_counter += 1
+
         for event in self.random_blit:
             print "["+str(event.good_or_bad)+"] Event " + str(event.event_name) + " created at: " + str(event.event_pos)
 
@@ -726,6 +729,7 @@ class Game():
             elif event.event_name == "house":
                 if self.group_pos == event.event_pos:
                     event_result = self.house(event)
+        self.mini_event()
 
         # Main while loop for the turn menu
         while in_turn_menu:
@@ -1437,6 +1441,28 @@ class Game():
             blit_x = tombstone.x_pos - tomb_surface.get_width()
         self.game_window.blit(tomb_surface, (blit_x, tombstone.y_pos - tombstone.tomb_height))
 
+    # Function to create small random events
+    def mini_event(self):
+
+        events = {"lose_wheel": 1, "find_food": 5}
+        the_event = None
+        for event in events:
+            if round(random.randint(1, 100), 1) <= events[event]:
+                the_event = event
+                break
+
+        if the_event == "lose_wheel":
+            if self.group_inventory["Spare Wheels"] > 0:
+                self.confirmation_window("The wagon hit a large hole and lost a wheel!", "okay")
+                self.group_inventory["Spare Wheels"] -= 1
+
+        elif the_event == "find_food":
+            rand_amount = random.randint(1, 50)
+            prompts = ["You come across an abandoned wagon and find [" + str(rand_amount) + "] Food.",
+                       "You find an unattended crop of corn. You're able to harvest [" + str(rand_amount) + "] Food."]
+            self.confirmation_window(random.choice(prompts), "okay")
+            self.group_inventory["Food"] += rand_amount
+
     # Creates and blits the Menu Bar
     def build_menu_bar(self):
         self.menu_bar = pygame.Surface((35*len(self.menu_list) + 10, 34))
@@ -1493,6 +1519,7 @@ class Game():
             print"Error: "+error
 
         self.change_list.append(passenger.name+" has died.")
+        self.confirmation_window(passenger.name+" has died.", "okay")
         # Checks if it's game over
         if len(passenger_list) == 0:
             print"They're all dead,  Jim."
@@ -2078,11 +2105,11 @@ class Game():
         while option == "wade":
             if wagon_pos[0] < (self.game_window.get_width() * 1.5/8) - wagon.get_width() or \
                wagon_pos[1] > self.game_window.get_height() + wagon.get_height():
-                self.confirmation_window("YOU MADE IT ACROSS SAFELY", "okay")
-                return "YOU MADE IT ACROSS SAFELY"
+                self.confirmation_window("You made it across safely!", "okay")
+                return "You made it across safely!"
             if random.randint(1, random_risk) == 1:
-                self.confirmation_window("YOU WERE INUNDATED BY WATER", "okay")
-                return "YOU WERE INUNDATED BY WATER"
+                self.confirmation_window("You were inundated with water!", "okay")
+                return "You were inundated with water!"
 
             wagon_pos[0] -= 1
             self.game_surface.fill((139, 69, 19))
@@ -2100,16 +2127,19 @@ class Game():
                     option = None
 
         # Loop for the floating minigame
+        pygame.key.set_repeat(500, 500)
         while option == "float":
             wagon_rect = pygame.Rect(tuple(wagon_pos), wagon.get_size())
             if wagon_pos[0] < (self.game_window.get_width() * 1.5/8) - wagon.get_width() or \
                wagon_pos[1] > self.game_window.get_height() + wagon.get_height():
-                self.confirmation_window("YOU MADE IT ACROSS SAFELY", "okay")
-                return "YOU MADE IT ACROSS SAFELY"
+                self.confirmation_window("You made it across safely!", "okay")
+                pygame.key.set_repeat()
+                return "You made it across safely!"
 
             if wagon_rect.collidelist([x.rect for x in river_debris_group]) != -1:
-                self.confirmation_window("YOU CRASHED!", "okay")
-                return "YOU CRASHED!"
+                self.confirmation_window("You Crashed!", "okay")
+                pygame.key.set_repeat()
+                return "You Crashed!"
 
             self.game_surface.fill((139, 69, 19))
             self.game_window.blit(self.game_surface, (0, 0))
@@ -2152,33 +2182,40 @@ class Game():
             else:
                 self.confirmation_window("You don't have enough money to hire a ferry.", "okay")
 
+    # Function for the House event
+    # Randomly gain or lose items
     def house(self, event):
-        item_changed = {}
-        # List of dictionaries, both positive and negative, used to inform the user of inventory changes
-        gain_loss_phrases = [{"You found": " in the house.",
-                              "You scavenged": " from the house",
-                              "Found": " in the house.",
-                              "You came across": " near the house."},
-                             {"Bandits stole": " from the wagon.",
-                              "You were ambushed by bandits and lost": ".",
-                              "You were attacked by thieves who stole": " from you.",
-                              "You came back to the wagon to find": "missing."}]
-        rand_phrase = random.choice(gain_loss_phrases[event.good_or_bad].keys())
-        change_report = rand_phrase
-        amount_items = random.randint(1, len(self.group_inventory))
-        # Randomly selects the items to gain or lose
-        for n in range(amount_items):
-            the_item = self.group_inventory.keys()[n]
-            amount_changed = random.randint(0, self.group_inventory[the_item])
-            item_changed[the_item] = amount_changed * event.good_or_bad
+        # Prompt the user to choose between going to the house, or skipping it
+        approach_prompt = "You come across a house by the side of the road. Do you investigate?"
+        if self.confirmation_window(approach_prompt, "yesno"):
+            item_changed = {}
+            # List of dictionaries, both positive and negative, used to inform the user of inventory changes
+            # The keys are the prefix to the item changes, the values are the suffix to the item changes
+            gain_loss_phrases = [{"You found": " in the house.",
+                                  "You scavenged": " from the house",
+                                  "Found": " in the house.",
+                                  "You came across": " near the house."},
+                                 {"Bandits stole": " from the wagon.",
+                                  "You were ambushed by bandits and lost": ".",
+                                  "You were attacked by thieves who stole": " from you.",
+                                  "You came back to the wagon to find": "missing."}]
+            rand_phrase = random.choice(gain_loss_phrases[event.good_or_bad].keys())
+            change_report = rand_phrase
+            amount_items = random.randint(1, len(self.group_inventory))
+            # Randomly selects the items to gain or lose
+            for n in range(amount_items):
+                the_item = self.group_inventory.keys()[n]
+                amount_changed = random.randint(0, self.group_inventory[the_item])
+                item_changed[the_item] = amount_changed * event.good_or_bad
 
-        # Changes the inventory and modifies the change_report with the items
-        for i in item_changed.keys():
-            self.group_inventory[i] += item_changed[i]
-            change_report += (str(", ["+str(abs(item_changed[i]))+" "+str(i)+"]"))
-        change_report += " " + str(gain_loss_phrases[event.good_or_bad][rand_phrase])
-        self.confirmation_window(change_report, "okay")
-        return change_report
+            # Changes the inventory and modifies the change_report with the items
+            for i in item_changed.keys():
+                self.group_inventory[i] += item_changed[i]
+                change_report += (str(", ["+str(abs(item_changed[i]))+" "+str(i)+"]"))
+            change_report += " " + str(gain_loss_phrases[event.good_or_bad][rand_phrase])
+            self.confirmation_window(change_report, "okay")
+            return change_report
+        return "You decide to continue on the road."
 
     # Used in paint_bucket to return all neighbors of a given pixel
     def get_neighbors(self, pixel):
