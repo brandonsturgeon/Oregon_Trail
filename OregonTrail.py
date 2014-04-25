@@ -22,8 +22,8 @@ clock = pygame.time.Clock()
 # Beginning Variables #
 #######################
 #sampleDisease("Disease Name": (Chance to infect, Infectivity, Season, Health Change, (min recovery, max recovery))}
-afflictions_dict = {"The Common Cold":  (10, 10, "winter", -2.5, (4, 10)),
-                    "The Flu": (10, 10, "winter", -5.5, (9, 15)),
+afflictions_dict = {"The Common Cold":  (0.5, 5, "winter", -2.5, (4, 10)),
+                    "The Flu": (0.2, 10, "winter", -5.5, (9, 15)),
                     "Hunger": (0, 0, "none", -2, -1),
                     "Well Fed": (0, 0, "none", 2, -1)
                     }
@@ -1039,16 +1039,22 @@ class Game():
             self.game_window.blit(self.game_surface, (0, 0))
             self.game_window.blit(self.road, (0, float(self.game_window.get_height()) -
                                               float(self.game_window.get_height()) / 3))
-            self.shape_group.update(self)
-            self.shape_group.draw(self.game_window)
 
-            # Displays random events
+            # We have to do it this way because we want the trees to be in front of the river, but behind houses
+            # Display Rivers
             for event in self.random_blit:
                 event.update()
                 if event.event_name == "river":
                     self.game_window.blit(event.surface, (event.x_pos, (float(self.game_window.get_height()) -
                                                                         float(self.game_window.get_height()) / 3)))
-                elif event.event_name == "house":
+
+            # Draw background
+            self.shape_group.update(self)
+            self.shape_group.draw(self.game_window)
+
+            # Display Houses
+            for event in self.random_blit:
+                if event.event_name == "house":
                     self.game_window.blit(event.surface, (event.x_pos, 500))
 
             # Displays towns
@@ -1206,14 +1212,14 @@ class Game():
         confirm_button_rect = confirm_button.get_rect()
         confirm_button_rect.centerx = confirm_button.get_width()*1.5
         confirm_button_rect.centery = confirm_button.get_height()*1.5
+        male_female_words = {("m", "male", "guy", "man", "boy"): "Male",
+                             ("f", "female", "gal", "woman", "girl"): "Female"}
         # Loops once for each passenger in self.num_passengers
         for x in range(self.num_passengers):
             entering_text = True
             text_prompt_counter = 0
             text_entry_responses = []
             text_entry = eztext.Input(maxlength=10,  color=(0, 0, 255),  prompt=prompt_list[text_prompt_counter]+":  ")
-            male_female_words = {("m", "male", "guy", "man", "boy"): "Male",
-                                 ("f", "female", "gal", "woman", "girl"): "Female"}
             # Character creation loop
             while entering_text:
                 clock.tick(30)
@@ -2025,7 +2031,7 @@ class Game():
             # Interactvity for the River menu
             events = pygame.event.get()
             for event in events:
-                # Mouse movement
+                # Mouse movement5
                 if event.type == pygame.MOUSEMOTION:
                     self.mouse_x, self.mouse_y = event.pos
                     mouse_rect = pygame.Rect((self.mouse_x, self.mouse_y), (1, 1))
@@ -2127,7 +2133,7 @@ class Game():
                     option = None
 
         # Loop for the floating minigame
-        pygame.key.set_repeat(500, 500)
+        pygame.key.set_repeat(12, 12)
         while option == "float":
             wagon_rect = pygame.Rect(tuple(wagon_pos), wagon.get_size())
             if wagon_pos[0] < (self.game_window.get_width() * 1.5/8) - wagon.get_width() or \
