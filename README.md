@@ -8,5 +8,6 @@ This was more of a documentation of my personal development in programming than 
 
 
 This relies on the Pygame module (Download found here http://www.pygame.org/download.shtml) 
+
 And the EZText module (Download found here http://pygame.org/project-EzText-920-.html)
 
