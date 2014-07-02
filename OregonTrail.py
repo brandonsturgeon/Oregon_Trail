@@ -8,12 +8,15 @@
 
 import pygame
 import random
-import eztext
 import string
 import copy
 import colorsys
 import pickle
 import time
+
+import imp
+eztext = imp.load_source('eztext', '/Users/brandonsturgeon/Desktop/eztext.py')
+
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -33,7 +36,7 @@ deceasedList = []
 group_afflictions = []
 
 
-resource_path = "Resources\\"
+resource_path = "Resources/"
 male_picture_list = ["maleface1", "maleface2", "maleface3", "maleface4", "maleface5"]
 female_picture_list = ["maleface2"]  # Temporary until female faces are added
 
@@ -69,7 +72,7 @@ class BackgroundSprites(pygame.sprite.Sprite):
     def __init__(self, size, color, pos_x, pos_y, picture):
         pygame.sprite.Sprite.__init__(self)
         self.picture = picture
-        self.image = pygame.image.load(resource_path+"Images\\"+self.picture+".png")
+        self.image = pygame.image.load(resource_path+"Images/"+self.picture+".png")
         self.rect = self.image.get_rect()
         self.rect.centerx = pos_x
         self.rect.centery = pos_y
@@ -98,7 +101,7 @@ class RiverDebris(pygame.sprite.Sprite):
         self.size = size
         self.river_pos = river_pos
         self.random_gen = random_gen
-        self.preimage = pygame.image.load(resource_path+"Images\\"+self.picture+".png")
+        self.preimage = pygame.image.load(resource_path+"Images/"+self.picture+".png")
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                             int(self.preimage.get_height()*self.size)))
         self.rect = self.image.get_rect()
@@ -138,7 +141,7 @@ class PassengerTab(pygame.Surface):
         self.text_font = pygame.font.Font(None, 15)
         self.passenger_surface = pygame.Surface(self.size)
         self.rect = pygame.Rect(self.position, self.size)
-        self.option_image = pygame.transform.scale(pygame.image.load(resource_path+"Images\\option_icon.png"), (20, 20))
+        self.option_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/option_icon.png"), (20, 20))
         self.option_rect = self.option_image.get_rect()
 
 
@@ -168,7 +171,7 @@ class ShowFaces():
         self.color = color
         self.x_pos = x_pos
         self.y_pos = y_pos
-        self.image = pygame.image.load(resource_path+"Images\\Faces\\"+self.file_path+".png")
+        self.image = pygame.image.load(resource_path+"Images/Faces/"+self.file_path+".png")
         self.face_rect = self.image.get_rect()
 
     def update(self):
@@ -176,7 +179,7 @@ class ShowFaces():
         self.face_rect.centery = self.y_pos + self.image.get_height()/2
 
     def create(self):
-        self.image = pygame.image.load(resource_path+"Images\\Faces\\"+self.file_path+".png")
+        self.image = pygame.image.load(resource_path+"Images/Faces/"+self.file_path+".png")
         self.face_rect = self.image.get_rect()
         self.update()
 
@@ -353,7 +356,7 @@ class TransactionButton():
         self.filename = "buybutton.png"
         if self.transaction == "sell":
             self.filename = "sellbutton.png"
-        self.image = pygame.transform.scale(pygame.image.load(resource_path+"Images\\"+self.filename), (25, 25))
+        self.image = pygame.transform.scale(pygame.image.load(resource_path+"Images/"+self.filename), (25, 25))
         self.image_rect = pygame.Rect(self.rect_position, self.image.get_size())
 
 
@@ -393,9 +396,9 @@ class ScrollButton():
     def __init__(self, direction):
         self.direction = direction
         if self.direction == "up":
-            self.image = pygame.image.load(resource_path+"Images\\uparrow.png")
+            self.image = pygame.image.load(resource_path+"Images/uparrow.png")
         elif self.direction == "down":
-            self.image = pygame.image.load(resource_path+"Images\\downarrow.png")
+            self.image = pygame.image.load(resource_path+"Images/downarrow.png")
         self.rect = pygame.Rect((0, 0), self.image.get_size())
 
     def update(self, position):
@@ -409,7 +412,7 @@ class Buffalo():
         self.size = size
         self.max_health = 100 * self.size
         self.health = self.max_health
-        self.preimage = pygame.image.load(resource_path+"Images\\"+self.picture+"_buffalo.png")
+        self.preimage = pygame.image.load(resource_path+"Images/"+self.picture+"_buffalo.png")
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         self.health_font = pygame.font.Font(None, 20)
@@ -438,7 +441,7 @@ class Buffalo():
 
     def update(self):
         # Checks the health and updates the health bar
-        self.preimage = pygame.image.load(resource_path+"Images\\"+self.status+"_buffalo.png")
+        self.preimage = pygame.image.load(resource_path+"Images/"+self.status+"_buffalo.png")
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         #Create health bar + shader + container
@@ -507,7 +510,7 @@ class Event():
         self.event_name = "river"
 
     def house(self):
-        self.surface = pygame.image.load(resource_path + "Images\\house.png")
+        self.surface = pygame.image.load(resource_path + "Images/house.png")
         self.event_name = "house"
 
     def update(self):
@@ -547,7 +550,7 @@ class RiverOptionButton():
 class Game():
     def __init__(self):
         # GUI Elements
-        self.game_window = pygame.display.set_mode((1280, 800), pygame.FULLSCREEN)
+        self.game_window = pygame.display.set_mode((1280, 800))
         self.game_surface = pygame.Surface((self.game_window.get_size())).convert()
         self.game_surface.fill((135, 206, 250))
         self.game_window.blit(self.game_surface,  (0, 0))
@@ -555,12 +558,12 @@ class Game():
         self.turn_menu_surface_offsetx = self.game_window.get_width() * (100./1280)
         self.turn_menu_surface_offsety = self.game_window.get_height() * (100./720)
         self.turn_menu_surface = pygame.Surface((0, 0))
-        self.exit_button = pygame.image.load(resource_path+"Images\\exit.png")
+        self.exit_button = pygame.image.load(resource_path+"Images/exit.png")
         self.exit_button_rect = self.exit_button.get_rect()
         self.exit_button_rect.centerx = self.game_window.get_width() - self.exit_button.get_width() / 2
         self.exit_button_rect.centery = self.exit_button.get_height()/2
-        self.tomb_image = pygame.image.load(resource_path+"Images\\tombstone.png")
-        self.town_image = pygame.image.load(resource_path+"Images\\town.png")
+        self.tomb_image = pygame.image.load(resource_path+"Images/tombstone.png")
+        self.town_image = pygame.image.load(resource_path+"Images/town.png")
         self.road = pygame.Surface((self.game_window.get_width(), self.game_window.get_height() / 3))
         self.road.fill((139, 69, 19))
         self.shop_blit_position = (self.game_window.get_width() - self.game_window.get_width()*(2./5),
@@ -620,7 +623,7 @@ class Game():
                                blit_position=self.shop_blit_position,
                                money=None)]
         self.affliction_button_list = []
-        for x in range(2):
+        for _ in range(2):
             random_mod = round(random.uniform(0.1, 2.0), 3)
             calculate_pos = True
             while calculate_pos:
@@ -692,7 +695,7 @@ class Game():
         in_turn_menu = True
         pygame.font.init()
         self.turn_passenger_list = []
-        next_day = pygame.image.load(resource_path+"Images\\nextday.png")
+        next_day = pygame.image.load(resource_path+"Images/nextday.png")
         self.turn_menu_surface = pygame.Surface((500, 75 * len(passenger_list) + next_day.get_height()+75))
         self.turn_menu_surface.fill((175.5, 175.5, 175.5))
         next_day_rect = pygame.Rect((0, 0), next_day.get_size())
@@ -748,7 +751,7 @@ class Game():
 
                 pass_pic_container = pygame.Surface((75, 75))
                 pass_pic_container.fill((255, 255, 255))
-                pass_pic = pygame.image.load(resource_path+"\\Images\\Faces\\"+surface.passenger.picture+".png")
+                pass_pic = pygame.image.load(resource_path+"/Images/Faces/"+surface.passenger.picture+".png")
                 pass_pic = pygame.transform.scale(pass_pic, (70, 70))
 
                 # Calculates the bar color based on health. Green -> Yellow -> Red
@@ -1208,7 +1211,7 @@ class Game():
     # Character Creation
     def char_create(self):
         prompt_list = ["First Name", "Last Name", "Age", "Gender"]
-        confirm_button = pygame.image.load(resource_path+"Images\\confirmbutton.png")
+        confirm_button = pygame.image.load(resource_path+"Images/confirmbutton.png")
         confirm_button_rect = confirm_button.get_rect()
         confirm_button_rect.centerx = confirm_button.get_width()*1.5
         confirm_button_rect.centery = confirm_button.get_height()*1.5
@@ -1309,7 +1312,7 @@ class Game():
         # Section for picking a face
         cur_face = "%empty"
         picking = True
-        confirm_button = pygame.image.load(resource_path+"Images\\confirmbutton.png")
+        confirm_button = pygame.image.load(resource_path+"Images/confirmbutton.png")
         confirm_button_rect = confirm_button.get_rect()
         confirm_button_rect.centerx = confirm_button.get_width()*1.5
         confirm_button_rect.centery = confirm_button.get_height()*1.5
@@ -1434,7 +1437,7 @@ class Game():
         tomb_surface.fill((175, 175, 175))
         font = pygame.font.Font(None, 18)
         blit_x = 0
-        face_image = pygame.image.load(resource_path + "Images\\Faces\\" + tombstone.passenger.picture + ".png")
+        face_image = pygame.image.load(resource_path + "Images/Faces/" + tombstone.passenger.picture + ".png")
         tomb_surface.blit(face_image, (tomb_surface.get_width()/2 - face_image.get_width()/2, 10))
         tomb_surface.blit(font.render("Name: %s" % tombstone.passenger.name, 1, (0, 0, 0)), (5, 110))
         tomb_surface.blit(font.render("Age : %s" % tombstone.passenger.age, 1, (0, 0, 0)), (5, 120))
@@ -1479,7 +1482,7 @@ class Game():
 
         # Creates the menu buttons
         for path in self.menu_list:
-            self.menu_button_list.append(MenuButton(image=resource_path+"Images\\"+path+".png",
+            self.menu_button_list.append(MenuButton(image=resource_path+"Images/"+path+".png",
                                                     name=path))
         # Manipulates and positions the menu buttons
         for button in self.menu_button_list:
@@ -1571,7 +1574,7 @@ class Game():
         passenger_info_filler_surface.fill((0, 255, 0))
         passenger_info_surface = pygame.Surface((400, 200))
         passenger_info_surface.fill((255, 255, 255))
-        passenger_picture = pygame.image.load(resource_path + "Images\\Faces\\" + passenger.picture + ".png")
+        passenger_picture = pygame.image.load(resource_path + "Images/Faces/" + passenger.picture + ".png")
         passenger_info_surface.blit(passenger_picture, (0, 0))
 
         # Blit Name
@@ -1641,8 +1644,8 @@ class Game():
                     y_value += char_height + 1
                 cur_line += 1
 
-        up_image = pygame.image.load(resource_path+"Images\\uparrow.png")
-        down_image = pygame.image.load(resource_path+"Images\\downarrow.png")
+        up_image = pygame.image.load(resource_path+"Images/uparrow.png")
+        down_image = pygame.image.load(resource_path+"Images/downarrow.png")
         logbook_surface.blit(up_image, (logbook_surface.get_width() - up_image.get_width(), 0))
         self.logbook_up_rect = pygame.Rect((render_pos[0] + logbook_surface.get_width() - up_image.get_width(),
                                             render_pos[1]), up_image.get_size())
@@ -1683,7 +1686,7 @@ class Game():
 
         # If the box is meant to be a box with "Okay" as the only option, or a box with text-entry
         if selection == "okay" or selection == "text_entry":
-            okay_button = pygame.transform.scale(pygame.image.load(resource_path + "Images\\okay_button.png"), (50, 25))
+            okay_button = pygame.transform.scale(pygame.image.load(resource_path + "Images/okay_button.png"), (50, 25))
             okay_button_pos = (self.game_window.get_width()/2 - okay_button.get_width()/2,
                                self.game_window.get_height()/2 + okay_button.get_height())
             okay_button_rect = pygame.Rect(okay_button_pos, (okay_button.get_size()))
@@ -1699,12 +1702,12 @@ class Game():
 
         # If the box is meant to be a box with "Yes" or "No" as the options
         elif selection == "yesno":
-            yes_button = pygame.transform.scale(pygame.image.load(resource_path + "Images\\yes_button.png"), (50, 25))
+            yes_button = pygame.transform.scale(pygame.image.load(resource_path + "Images/yes_button.png"), (50, 25))
             yes_button_pos = (self.game_window.get_width()/2 - yes_button.get_width() + 5,
                               self.game_window.get_height()/2 + yes_button.get_height() + 5)
             yes_button_rect = pygame.Rect(yes_button_pos, (yes_button.get_size()))
 
-            no_button = pygame.transform.scale(pygame.image.load(resource_path + "Images\\no_button.png"), (50, 25))
+            no_button = pygame.transform.scale(pygame.image.load(resource_path + "Images/no_button.png"), (50, 25))
             no_button_pos = (self.game_window.get_width()/2 + 5,
                              self.game_window.get_height()/2 + no_button.get_height() + 5)
             no_button_rect = pygame.Rect(no_button_pos, (no_button.get_size()))
@@ -1833,8 +1836,8 @@ class Game():
         food_menu_surface = pygame.Surface((300, 100))
         food_menu_surface.fill((255, 255, 255))
         text = pygame.font.Font(None, 20)
-        up_image = pygame.transform.scale(pygame.image.load(resource_path+"Images\\uparrow.png"), (25, 25))
-        down_image = pygame.transform.scale(pygame.image.load(resource_path+"Images\\downarrow.png"), (25, 25))
+        up_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/uparrow.png"), (25, 25))
+        down_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/downarrow.png"), (25, 25))
         food_menu_surface.blit(text.render(passenger.name, 1, (0, 0, 255)), (10, food_menu_surface.get_height()/4))
         food_menu_surface.blit(text.render("Food Division: ", 1, (255, 0, 0)), (10, food_menu_surface.get_height()/2))
         food_menu_surface.blit(text.render(str(passenger.food_divisions), 1, (0, 0, 255)),
@@ -1871,9 +1874,9 @@ class Game():
         cooldown_background = pygame.Surface((300, 50))
         cooldown_bar = pygame.Surface((300, 50))
         cooldown_bar.fill((255, 0, 0))
-        crosshair = pygame.image.load(resource_path + "Images\\crosshair.png")
-        gun_shot = pygame.transform.scale(pygame.image.load(resource_path + "Images\\bloodsplatter.png"), (20, 20))
-        ref_buffalo = pygame.image.load(resource_path + "Images\\alive_buffalo.png")
+        crosshair = pygame.image.load(resource_path + "Images/crosshair.png")
+        gun_shot = pygame.transform.scale(pygame.image.load(resource_path + "Images/bloodsplatter.png"), (20, 20))
+        ref_buffalo = pygame.image.load(resource_path + "Images/alive_buffalo.png")
         gun_shot_group = {}
         pygame.mouse.set_visible(False)
 
@@ -1882,7 +1885,7 @@ class Game():
         the_max = min(20, max(0, int(val_funct)))
 
         # Create buffalos and give them random values
-        for n in range(random.randint(0, the_max)):
+        for _ in range(random.randint(0, the_max)):
             random_size = random.uniform(0.5, 1.5)
             random_y = random.randint(ref_buffalo.get_height(), (self.game_window.get_height() * 3/4))
             random_x = random.randint(-self.game_window.get_width()/2, self.game_window.get_width()/2)
@@ -1977,10 +1980,10 @@ class Game():
             self.game_window.blit(crosshair, (self.mouse_x - crosshair.get_width()/2,
                                               self.mouse_y - crosshair.get_height()/2))
             if shoot_countdown > 0:
-                crosshair = pygame.image.load(resource_path + "Images\\crosshair_cooldown.png")
+                crosshair = pygame.image.load(resource_path + "Images/crosshair_cooldown.png")
                 shoot_countdown -= 1
             else:
-                crosshair = pygame.image.load(resource_path + "Images\\crosshair.png")
+                crosshair = pygame.image.load(resource_path + "Images/crosshair.png")
             pygame.display.flip()
 
         # End of the hunt stuff
@@ -2087,7 +2090,7 @@ class Game():
         river_surface.fill((30, 144, 255))
         river_pos = (self.game_window.get_width() * 1.5/8, 0)
 
-        wagon = pygame.image.load(resource_path + "Images\\wagon.png")
+        wagon = pygame.image.load(resource_path + "Images/wagon.png")
         wagon_pos = [self.game_window.get_width() * 6.5/8, self.game_window.get_height()/2]
 
         river_random = (self.game_window.get_width() * 1.5/8, (self.game_window.get_width() * 6.5/8)-wagon.get_width())
@@ -2096,7 +2099,7 @@ class Game():
         river_debris_group = []
 
         # Creates buttons for the river option menu
-        for num in range(random.randint(1, 10)):
+        for _ in range(random.randint(1, 10)):
             random_x = random.randint(river_random[0], river_random[1])
             random_y = random.randint(0, self.game_window.get_height())
             random_size = round(random.uniform(0.5, 1.5), 1)
@@ -2357,13 +2360,13 @@ class Game():
 
         paint_menu_bar_buttons = {"color_select": (paint_menu_colors_rect,
                                                    paint_menu_pulldown,
-                                                   resource_path+"Images\\Paint\\color_select.png"),
+                                                   resource_path+"Images/Paint/color_select.png"),
                                   "brush_sizes": (paint_menu_sizes_rect,
                                                   paint_menu_sizes_pulldown,
-                                                  resource_path+"Images\\Paint\\brush_sizes.png"),
+                                                  resource_path+"Images/Paint/brush_sizes.png"),
                                   "text_tool": (paint_menu_text_rect,
                                                 paint_menu_text_pulldown,
-                                                resource_path+"Images\\Paint\\text.png")}
+                                                resource_path+"Images/Paint/text.png")}
 
         menu_x = 5
         for b in paint_menu_bar_buttons:
@@ -2505,13 +2508,13 @@ class Game():
         if self.confirmation_window("Save this painting by [" + passenger.name + "] to your inventory?", "yesno"):
             try:
                 pygame.image.save(self.canvas,
-                                  resource_path + "Saved Paintings\\"+passenger.name+str(time.time())+".png")
+                                  resource_path + "Saved Paintings/"+passenger.name+str(time.time())+".png")
                 self.confirmation_window("Painting saved successfully.", "okay")
                 print "Painting saved successfully"
             except IOError as e:
                 self.confirmation_window("Error saving painting.", "okay")
                 print "Error saving painting to [" + \
-                      resource_path + "Saved Paintings\\"+passenger.name+str(time.time())+".png" + "]: " + str(e)
+                      resource_path + "Saved Paintings/"+passenger.name+str(time.time())+".png" + "]: " + str(e)
 
     @staticmethod
     def game_over():
