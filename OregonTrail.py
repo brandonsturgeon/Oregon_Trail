@@ -30,10 +30,25 @@ afflictions_dict = {"The Common Cold":  (0.5, 5, "winter", -2.5, (4, 10)),
                     "Hunger": (0, 0, "none", -2, -1),
                     "Well Fed": (0, 0, "none", 2, -1)
                     }
+
+#TODO: Can these be moved to Game.__init__() ?
 passenger_list = []
 afflictions_list = []
 deceasedList = []
 group_afflictions = []
+
+shop_name_prefix = ["abner", "archer", "baker", "baxter", "booker",
+                    "breaker", "bridger", "casper", "chester", "colter",
+                    "dexter", "faulkner", "fielder", "fisher", "foster",
+                    "grover", "gulliver", "homer", "hunter", "lander",
+                    "leander", "luther", "miller", "palmer", "rancher",
+                    "ranger", "rider", "ryker", "sayer", "thayer", "wheeler",
+                    "dead man", "skeleton", "robber"]
+
+shop_name_suffix = ["cave", "creek", "desert", "farm", "field", "forest",
+                    "gulch", "hill", "lake", "mountain", "pass", "peak",
+                    "plain", "pond", "ranch", "ravine", "rise" "river",
+                    "rock", "stream", "swamp", "valley", "woods"]
 
 
 resource_path = "Resources/"
@@ -208,18 +223,6 @@ class Tombstones():
 class Shop():
     def __init__(self, name, inventory, price_mod, group_inventory,
                  group_money, item_prices, position, blit_position, money):
-        self.name_prefix = ["abner", "archer", "baker", "baxter", "booker",
-                            "breaker", "bridger", "casper", "chester", "colter",
-                            "dexter", "faulkner", "fielder", "fisher", "foster",
-                            "grover", "gulliver", "homer", "hunter", "lander",
-                            "leander", "luther", "miller", "palmer", "rancher",
-                            "ranger", "rider", "ryker", "sayer", "thayer", "wheeler",
-                            "dead man", "skeleton", "robber"]
-
-        self.name_suffix = ["cave", "creek", "desert", "farm", "field", "forest",
-                            "gulch", "hill", "lake", "mountain", "pass", "peak",
-                            "plain", "pond", "ranch", "ravine", "rise" "river",
-                            "rock", "stream", "swamp", "valley", "woods"]
         self.yvalue = 40
         self.group_inventory = group_inventory
         self.group_money = group_money
@@ -249,23 +252,25 @@ class Shop():
 
         # Random name generation
         if name == "":
-            self.name = string.capitalize(random.choice(self.name_prefix) + "'s " + random.choice(self.name_suffix))
-            print self.name
+            self.name = string.capitalize(random.choice(shop_name_prefix) + "'s " + random.choice(shop_name_suffix))
         else:
             self.name = name
         # Random inventory generation
         if self.inventory == {}:
+            # TODO: The shop should have random items, not just what the group currently has
             inventory_random = copy.copy(self.group_inventory)
+
+            # Assign a random value between 1,10 to each inventory item
             for key in list(inventory_random.keys()):
                 inventory_random[key] = random.randint(0, 10)
+
+            # Inflate food count
             inventory_random["Food"] *= 20
             self.inventory = inventory_random
-            print self.inventory
 
         # Random money generation
         if money is None:
             self.money = random.randint(200, 500)
-            print "Money: " + str(self.money)
         else:
             self.name = name
         self.render()
@@ -476,6 +481,8 @@ class Buffalo():
 
         # Defines movement
         if self.status == "alive":
+            # If buffalo is alive, move them until they reach their target X and Y positions
+            # TODO: this logic should be reworked
             self.rect.x += float(3 - self.size)
             if self.rect.y != self.target_y:
                 if self.rect.y < self.target_y:
@@ -680,7 +687,7 @@ class Game():
         for event in self.random_blit:
             print "["+str(event.good_or_bad)+"] Event " + str(event.event_name) + " created at: " + str(event.event_pos)
 
-    # Loops through main Game functions
+    # Uppermost loop. Loops through main Game functions
     def begin_play(self):
         while True:
             clock.tick(30)
