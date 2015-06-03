@@ -520,8 +520,8 @@ class Event():
         self.surface = pygame.image.load(resource_path + "Images/house.png")
         self.event_name = "house"
 
-    def update(self):
-        self.x_pos += 2
+    def update(self, move_value):
+        self.x_pos += 2 * move_value
 
 
 # Used to create interactive buttons in the RiverOptionMenu
@@ -1053,7 +1053,7 @@ class Game():
             # We have to do it this way because we want the trees to be in front of the river, but behind houses
             # Display Rivers
             for event in self.random_blit:
-                event.update()
+                event.update(self.move_value)
                 if event.event_name == "river":
                     self.game_window.blit(event.surface, (event.x_pos, (float(self.game_window.get_height()) -
                                                                         float(self.game_window.get_height()) / 3)))
