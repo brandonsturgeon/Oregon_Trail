@@ -15,7 +15,7 @@ import pickle
 import time
 
 import imp
-eztext = imp.load_source('eztext', '/Users/brandonsturgeon/Desktop/eztext.py')
+eztext = imp.load_source('eztext', 'Resources/eztext.py')
 
 
 pygame.init()
