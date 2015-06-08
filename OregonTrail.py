@@ -154,7 +154,7 @@ class PassengerTab(pygame.Surface):
         self.size = size
         self.passenger = passenger
         self.text_font = pygame.font.Font(None, 15)
-        self.passenger_surface = pygame.Surface(self.size)
+        self.passenger_surface = pygame.Surface(self.size).convert()
         self.rect = pygame.Rect(self.position, self.size)
         self.option_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/option_icon.png"), (20, 20))
         self.option_rect = self.option_image.get_rect()
@@ -168,7 +168,7 @@ class OptionButton():
         self.size = size
         self.hover = hover
         self.passenger = passenger_tab.passenger
-        self.button_surface = pygame.Surface(self.size)
+        self.button_surface = pygame.Surface(self.size).convert()
         if self.hover is not None and self.hover.option == self.option:
             self.button_surface.fill((200, 200, 200))
         else:
@@ -238,13 +238,13 @@ class Shop():
         # Gui stuff #
 
         # Main Window
-        self.shop_surface = pygame.Surface((500, 300))
+        self.shop_surface = pygame.Surface((500, 300)).convert()
         # Separator Line
-        self.sep_line = pygame.Surface((self.shop_surface.get_width(), 10))
+        self.sep_line = pygame.Surface((self.shop_surface.get_width(), 10)).convert()
         self.sep_line.fill((0, 0, 0))
         # Inventory container box
         self.inv_container = pygame.Surface((self.shop_surface.get_width()-20,
-                                             self.shop_surface.get_height()/2 - 35))
+                                             self.shop_surface.get_height()/2 - 35)).convert()
         self.inv_container.fill((255, 255, 255))
         # Font creation
         self.title_font = pygame.font.Font(None, 30)
@@ -421,12 +421,12 @@ class Buffalo():
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         self.health_font = pygame.font.Font(None, 20)
-        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size)))
+        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size))).convert()
         self.health_bar_shader = pygame.Surface((self.health_bar_container.get_width() + 6,
-                                                 self.health_bar_container.get_height() + 6))
+                                                 self.health_bar_container.get_height() + 6)).convert()
         self.health_number = self.health_font.render(str(self.health), 1, (0, 0, 0))
         self.health_bar_shader.fill((175, 175, 175))
-        self.health_bar = pygame.Surface(self.health_bar_container.get_size())
+        self.health_bar = pygame.Surface(self.health_bar_container.get_size()).convert()
         self.health_color = ()
         if self.health >= 50:
                     self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
@@ -450,16 +450,16 @@ class Buffalo():
         self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         #Create health bar + shader + container
-        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size)))
+        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size))).convert()
         self.health_number = self.health_font.render(str(int(self.health)), 1, (255, 255, 255))
         self.health_bar_shader = pygame.Surface((self.health_bar_container.get_width() + 6,
-                                                 self.health_bar_container.get_height() + 6))
+                                                 self.health_bar_container.get_height() + 6)).convert()
         self.health_bar_shader.fill((175, 175, 175))
         if self.health <= 0:
-            self.health_bar = pygame.Surface((0, 0))
+            self.health_bar = pygame.Surface((0, 0)).convert()
         else:
             self.health_bar = pygame.Surface((int(self.health_bar_container.get_width()/self.max_health*self.health),
-                                              self.health_bar_container.get_height()))
+                                              self.health_bar_container.get_height())).convert()
             # Set the color of the health_bar_container Red->Yellow->Red based on HP
             if self.health >= 50:
                 self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
@@ -496,7 +496,7 @@ class Buffalo():
 class Event():
     def __init__(self, pos, name=None):
         self.good_or_bad = random.choice([-1, 1])
-        self.surface = pygame.Surface((0, 0))
+        self.surface = pygame.Surface((0, 0)).convert()
         self.random_events = [self.river, self.house]
         self.name = name
         self.pos = pos
@@ -512,7 +512,7 @@ class Event():
         self.x_pos = (-self.event_pos * 40) + 1280
 
     def river(self):
-        self.surface = pygame.Surface((100, 400))
+        self.surface = pygame.Surface((100, 400)).convert()
         self.surface.fill((30, 144, 255))
         self.event_name = "river"
 
@@ -531,7 +531,7 @@ class RiverOptionButton():
         self.size = size
         self.hover = hover
         self.size = size
-        self.surface = pygame.Surface(self.size)
+        self.surface = pygame.Surface(self.size).convert()
         self.pos = pos
         if self.hover:
             self.surface.fill((200, 200, 200))
@@ -564,19 +564,19 @@ class Game():
         self.shape_group = pygame.sprite.Group()
         self.turn_menu_surface_offsetx = self.game_window.get_width() * (100./1280)
         self.turn_menu_surface_offsety = self.game_window.get_height() * (100./720)
-        self.turn_menu_surface = pygame.Surface((0, 0))
+        self.turn_menu_surface = pygame.Surface((0, 0)).convert()
         self.exit_button = pygame.image.load(resource_path+"Images/exit.png")
         self.exit_button_rect = self.exit_button.get_rect()
         self.exit_button_rect.centerx = self.game_window.get_width() - self.exit_button.get_width() / 2
         self.exit_button_rect.centery = self.exit_button.get_height()/2
         self.tomb_image = pygame.image.load(resource_path+"Images/tombstone.png")
         self.town_image = pygame.image.load(resource_path+"Images/town.png")
-        self.road = pygame.Surface((self.game_window.get_width(), self.game_window.get_height() / 3))
+        self.road = pygame.Surface((self.game_window.get_width(), self.game_window.get_height() / 3)).convert()
         self.road.fill((139, 69, 19))
         self.shop_blit_position = (self.game_window.get_width() - self.game_window.get_width()*(2./5),
                                    self.game_window.get_height()*(1./8))
         self.info_menu_blit_position = (200, 200)
-        self.menu_bar = pygame.Surface((0, 0))
+        self.menu_bar = pygame.Surface((0, 0)).convert()
         self.logbook_render_pos = (200, 200)
         self.logbook_up_rect = pygame.Rect(0, 0, 0, 0)
         self.logbook_down_rect = pygame.Rect(0, 0, 0, 0)
@@ -584,7 +584,7 @@ class Game():
         self.food_menu_down_rect = pygame.Rect(0, 0, 0, 0)
         self.food_menu_blit_pos = (400, 200)
         self.random_blit = []
-        self.canvas = pygame.Surface((400, 300))
+        self.canvas = pygame.Surface((400, 300)).convert()
         self.undos = []
         self.redos = []
 
@@ -703,7 +703,7 @@ class Game():
         pygame.font.init()
         self.turn_passenger_list = []
         next_day = pygame.image.load(resource_path+"Images/nextday.png")
-        self.turn_menu_surface = pygame.Surface((500, 75 * len(passenger_list) + next_day.get_height()+75))
+        self.turn_menu_surface = pygame.Surface((500, 75 * len(passenger_list) + next_day.get_height()+75)).convert()
         self.turn_menu_surface.fill((175.5, 175.5, 175.5))
         next_day_rect = pygame.Rect((0, 0), next_day.get_size())
         next_day_rect.centerx = (self.turn_menu_surface.get_width() + self.turn_menu_surface_offsetx
@@ -750,13 +750,13 @@ class Game():
                 surface.fill((255, 255, 255))
                 status_color = (0, 255, 0)
 
-                health_bar_container = pygame.Surface((75, 25))
+                health_bar_container = pygame.Surface((75, 25)).convert()
                 health_bar_container.fill((0, 0, 0))
                 surface.blit(health_bar_container, (surface.get_width() - health_bar_container.get_width() - 5,
                                                     surface.get_height() - health_bar_container.get_height() - 5))
-                health_bar = pygame.Surface((int(surface.passenger.health/100.*health_bar_container.get_width()), 25))
+                health_bar = pygame.Surface((int(surface.passenger.health/100.*health_bar_container.get_width()), 25)).convert()
 
-                pass_pic_container = pygame.Surface((75, 75))
+                pass_pic_container = pygame.Surface((75, 75)).convert()
                 pass_pic_container.fill((255, 255, 255))
                 pass_pic = pygame.image.load(resource_path+"/Images/Faces/"+surface.passenger.picture+".png")
                 pass_pic = pygame.transform.scale(pass_pic, (70, 70))
@@ -1440,7 +1440,7 @@ class Game():
 
     # Render the tombstone information to self.game_window
     def tombstone_info(self, tombstone):
-        tomb_surface = pygame.Surface((200, 300))
+        tomb_surface = pygame.Surface((200, 300)).convert()
         tomb_surface.fill((175, 175, 175))
         font = pygame.font.Font(None, 18)
         blit_x = 0
@@ -1481,7 +1481,7 @@ class Game():
 
     # Creates and blits the Menu Bar
     def build_menu_bar(self):
-        self.menu_bar = pygame.Surface((35*len(self.menu_list) + 10, 34))
+        self.menu_bar = pygame.Surface((35*len(self.menu_list) + 10, 34)).convert()
         self.menu_bar.fill((175, 175, 175))
         self.menu_bar.set_alpha(200)
         self.menu_button_list = []
@@ -1546,7 +1546,7 @@ class Game():
         pygame.font.init()
         option_offset = 20./6.5
         option_menu_surface = pygame.Surface((100+option_offset*2,
-                                              option_offset + (20 + option_offset)*len(self.option_list)))
+                                              option_offset + (20 + option_offset)*len(self.option_list))).convert()
         option_menu_surface.fill((100, 100, 100))
         y_value = option_offset
 
@@ -1577,9 +1577,9 @@ class Game():
         for affliction in passenger.afflictions:
             self.affliction_button_list.append(AfflictionBox(affliction=affliction,
                                                              font=info_font))
-        passenger_info_filler_surface = pygame.Surface((400 + border_offset, 200 + border_offset))
+        passenger_info_filler_surface = pygame.Surface((400 + border_offset, 200 + border_offset)).convert()
         passenger_info_filler_surface.fill((0, 255, 0))
-        passenger_info_surface = pygame.Surface((400, 200))
+        passenger_info_surface = pygame.Surface((400, 200)).convert()
         passenger_info_surface.fill((255, 255, 255))
         passenger_picture = pygame.image.load(resource_path + "Images/Faces/" + passenger.picture + ".png")
         passenger_info_surface.blit(passenger_picture, (0, 0))
@@ -1635,8 +1635,8 @@ class Game():
     # Function to show the full logbook
     def show_logbook(self, line_range, render_pos):
         offset = 5
-        logbook_border = pygame.Surface((410, 510))
-        logbook_surface = pygame.Surface((400, 500))
+        logbook_border = pygame.Surface((410, 510)).convert()
+        logbook_surface = pygame.Surface((400, 500)).convert()
         logbook_surface.fill((255, 255, 255))
         text = pygame.font.Font(None, 15)
         char_height = text.size("LOREM IPSUM")[1]
@@ -1670,8 +1670,8 @@ class Game():
     def confirmation_window(self, message, selection):
         pygame.key.set_repeat(0, 0)
         in_confirm_window = True
-        confirm_outline = pygame.Surface((210, 110))
-        confirm_window = pygame.Surface((200, 100))
+        confirm_outline = pygame.Surface((210, 110)).convert()
+        confirm_window = pygame.Surface((200, 100)).convert()
         confirm_window.fill((255, 255, 255))
 
         okay_button_rect = pygame.Rect((0, 0), (0, 0))
@@ -1703,7 +1703,7 @@ class Game():
 
             # Text-entry specific stuff
             if selection == "text_entry":
-                entry_box = pygame.Surface((confirm_window.get_width() - 10, 40))
+                entry_box = pygame.Surface((confirm_window.get_width() - 10, 40)).convert()
                 entry_box.fill((255, 255, 255))
                 confirm_window.blit(entry_box, (5, confirm_window.get_height()/2 - entry_box.get_height()))
 
@@ -1814,8 +1814,8 @@ class Game():
     # Creates a surface that shows the changes for that day
     def show_output_box(self):
         offset = 5
-        output_border = pygame.Surface((310, 160))
-        output_box = pygame.Surface((300, 150))
+        output_border = pygame.Surface((310, 160)).convert()
+        output_box = pygame.Surface((300, 150)).convert()
         output_box.fill((255, 255, 255))
         text = pygame.font.Font(None, 15)
         char_height = text.size("LOREM IPSUM")[1]
@@ -1839,8 +1839,8 @@ class Game():
     # Shows the menu to display and edit food for each passenger
     def show_food_menu(self, passenger):
         offset = 5
-        food_menu_surface_border = pygame.Surface((310, 110))
-        food_menu_surface = pygame.Surface((300, 100))
+        food_menu_surface_border = pygame.Surface((310, 110)).convert()
+        food_menu_surface = pygame.Surface((300, 100)).convert()
         food_menu_surface.fill((255, 255, 255))
         text = pygame.font.Font(None, 20)
         up_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/uparrow.png"), (25, 25))
@@ -1878,8 +1878,8 @@ class Game():
         self.game_window.blit(self.game_surface, (0, 0))
         countdown_text = pygame.font.Font(None, 35)
         counter_text = pygame.font.Font(None, 50)
-        cooldown_background = pygame.Surface((300, 50))
-        cooldown_bar = pygame.Surface((300, 50))
+        cooldown_background = pygame.Surface((300, 50)).convert()
+        cooldown_bar = pygame.Surface((300, 50)).convert()
         cooldown_bar.fill((255, 0, 0))
         crosshair = pygame.image.load(resource_path + "Images/crosshair.png")
         gun_shot = pygame.transform.scale(pygame.image.load(resource_path + "Images/bloodsplatter.png"), (20, 20))
@@ -1906,7 +1906,7 @@ class Game():
         while hunting:
             clock.tick(60)
             events = pygame.event.get()
-            cooldown_bar = pygame.Surface((shoot_countdown*2, 50))
+            cooldown_bar = pygame.Surface((shoot_countdown*2, 50)).convert()
             cooldown_background.fill((0, 0, 0))
             cooldown_bar.fill((255, 0, 0))
             cooldown_background.blit(cooldown_bar, (0, 0))
@@ -2022,9 +2022,9 @@ class Game():
         while in_menu:
             y_value = font_height
             object_list = []
-            option_box = pygame.Surface((400, 300))
+            option_box = pygame.Surface((400, 300)).convert()
             option_box.fill((255, 255, 255))
-            option_box_container = pygame.Surface((option_box.get_width() + 10, option_box.get_height() + 10))
+            option_box_container = pygame.Surface((option_box.get_width() + 10, option_box.get_height() + 10)).convert()
             # Global offset used to position rectangles
             global_offset = (self.game_window.get_width() -
                              option_box_container.get_width())/2, \
@@ -2093,7 +2093,7 @@ class Game():
             pygame.display.flip()
 
         # Variables defined before handling the options
-        river_surface = pygame.Surface((self.game_window.get_width() * 5/8, self.game_window.get_height()))
+        river_surface = pygame.Surface((self.game_window.get_width() * 5/8, self.game_window.get_height())).convert()
         river_surface.fill((30, 144, 255))
         river_pos = (self.game_window.get_width() * 1.5/8, 0)
 
@@ -2288,7 +2288,7 @@ class Game():
         line_start = (0, 0)
         line_end = (0, 0)
 
-        paint_menu_bar = pygame.Surface((self.canvas.get_width(), 30))
+        paint_menu_bar = pygame.Surface((self.canvas.get_width(), 30)).convert()
         paint_menu_bar.fill((175, 175, 175))
 
         paint_colors = {"red": (pygame.Rect((0, 0), (10, 10)), (255, 0, 0)),
@@ -2308,20 +2308,20 @@ class Game():
                       "large": (pygame.Rect((0, 0), (10, 10)), 15)}
 
         paint_menu_colors_rect = pygame.Rect((0, 0), (30, 30))
-        paint_menu_pulldown = pygame.Surface((50, 50))
+        paint_menu_pulldown = pygame.Surface((50, 50)).convert()
         paint_menu_pulldown.fill((175, 175, 175))
 
         paint_menu_sizes_rect = pygame.Rect((0, 0), (50, 30))
-        paint_menu_sizes_pulldown = pygame.Surface((50, 50))
+        paint_menu_sizes_pulldown = pygame.Surface((50, 50)).convert()
         paint_menu_sizes_pulldown.fill((175, 175, 175))
 
         paint_menu_text_rect = pygame.Rect((0, 0), (30, 30))
-        paint_menu_text_pulldown = pygame.Surface((50, 50))
+        paint_menu_text_pulldown = pygame.Surface((50, 50)).convert()
 
         x_value = 5
         y_value = 5
         for color in paint_colors:
-            the_sur = pygame.Surface((10, 10))
+            the_sur = pygame.Surface((10, 10)).convert()
             the_sur.fill(paint_colors[color][1])
             paint_menu_pulldown.blit(the_sur, (x_value, y_value))
             paint_colors[color] = (pygame.Rect((g_pos[0] + x_value,
@@ -2335,7 +2335,7 @@ class Game():
         x_value = 5
         y_value = 5
         for size in brush_sizes:
-            the_sur = pygame.Surface((10, 10))
+            the_sur = pygame.Surface((10, 10)).convert()
             the_sur.fill((255, 255, 255))
             calc_pos = (int(the_sur.get_width()/2 - brush_sizes[size][1]/2),
                         int(the_sur.get_height()/2 - brush_sizes[size][1]/2))
@@ -2353,7 +2353,7 @@ class Game():
         y_value = 5
         for font in text_fonts:
             fnt = pygame.font.Font(None, text_fonts[font][1])
-            the_sur = pygame.Surface((10, 10))
+            the_sur = pygame.Surface((10, 10)).convert()
             the_sur.fill((255, 255, 255))
             the_sur.blit(fnt.render("T", 1, (0, 0, 0)), (0, 0))
             paint_menu_text_pulldown.blit(the_sur, (x_value, y_value))
@@ -2492,7 +2492,7 @@ class Game():
             if show_pulldown is not None:
                 self.game_window.blit(show_pulldown, g_pos)
 
-            cursor = pygame.Surface((cur_width, cur_width))
+            cursor = pygame.Surface((cur_width, cur_width)).convert()
             cursor.fill(cur_color)
 
             # Only show the cursor if it's on the canvas and not on an option menu
