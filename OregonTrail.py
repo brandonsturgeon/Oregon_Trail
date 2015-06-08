@@ -557,7 +557,8 @@ class RiverOptionButton():
 class Game():
     def __init__(self):
         # GUI Elements
-        self.game_window = pygame.display.set_mode((1280, 800))
+        flags = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN
+        self.game_window = pygame.display.set_mode((1280, 800), flags)
         self.game_surface = pygame.Surface((self.game_window.get_size())).convert()
         self.game_surface.fill((135, 206, 250))
         self.game_window.blit(self.game_surface,  (0, 0))
