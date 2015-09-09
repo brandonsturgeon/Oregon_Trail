@@ -837,7 +837,9 @@ class Game():
         # Creates and displays the faces
         for path, counter in zip(picture_list, range(len(picture_list))):
             face_list.append(ShowFaces(file_path=path,
-                                       x_pos=(picture_list.index(path) * 100 + 50), y_pos=100))
+                                       x_pos=(picture_list.index(path) * 100 + 50), 
+                                       y_pos=100,
+                                       resource_path=resource_path))
             face_list[counter].create()
 
         # Face picking loop
