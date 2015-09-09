@@ -29,8 +29,7 @@ from lib.buffalo import Buffalo
 from lib.event import Event
 from lib.river_option_button import RiverOptionButton
 
-import imp
-eztext = imp.load_source('eztext', 'resources/eztext.py')
+import lib.eztext as eztext
 
 
 pygame.init()
