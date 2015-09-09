@@ -14,8 +14,23 @@ import colorsys
 import pickle
 import time
 
+from lib.afflictions import Afflictions
+from lib.background_sprites import BackgroundSprites
+from lib.river_debris import RiverDebris
+from lib.passenger import Passenger
+from lib.passenger_tab import PassengerTab
+from lib.option_button import OptionButton
+from lib.show_faces import ShowFaces
+from lib.tombstone import Tombstone
+from lib.shop import Shop
+from lib.affliction_box import AfflictionBox
+from lib.menu_button import MenuButton
+from lib.buffalo import Buffalo
+from lib.event import Event
+from lib.river_option_button import RiverOptionButton
+
 import imp
-eztext = imp.load_source('eztext', 'Resources/eztext.py')
+eztext = imp.load_source('eztext', 'resources/eztext.py')
 
 
 pygame.init()
@@ -37,521 +52,9 @@ afflictions_list = []
 deceasedList = []
 group_afflictions = []
 
-shop_name_prefix = ["abner", "archer", "baker", "baxter", "booker",
-                    "breaker", "bridger", "casper", "chester", "colter",
-                    "dexter", "faulkner", "fielder", "fisher", "foster",
-                    "grover", "gulliver", "homer", "hunter", "lander",
-                    "leander", "luther", "miller", "palmer", "rancher",
-                    "ranger", "rider", "ryker", "sayer", "thayer", "wheeler",
-                    "dead man", "skeleton", "robber"]
-
-shop_name_suffix = ["cave", "creek", "desert", "farm", "field", "forest",
-                    "gulch", "hill", "lake", "mountain", "pass", "peak",
-                    "plain", "pond", "ranch", "ravine", "rise" "river",
-                    "rock", "stream", "swamp", "valley", "woods"]
-
-
-resource_path = "Resources/"
+resource_path = "resources/"
 male_picture_list = ["maleface1", "maleface2", "maleface3", "maleface4", "maleface5"]
 female_picture_list = ["maleface2"]  # Temporary until female faces are added
-
-###########
-# Classes #
-###########
-
-
-# Class used to create diseases
-class AfflictionsClass():
-    def __init__(self, name, chance_to_infect, infectivity, prime_season, health_change, recovery_time):
-        self.name = name
-        self.chance_to_infect = chance_to_infect
-        self.infectivity = infectivity
-        self.prime_season = prime_season
-        self.health_change = health_change
-        self.recovery_time = recovery_time
-
-    # Sets equality to self.name
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.name == other.name
-        else:
-            return False
-
-    # Sets the inequality
-    def __ne__(self, other):
-        return not __eq__(self, other)
-
-
-# Sprites used for the background
-class BackgroundSprites(pygame.sprite.Sprite):
-    def __init__(self, size, color, pos_x, pos_y, picture):
-        pygame.sprite.Sprite.__init__(self)
-        self.picture = picture
-        self.image = pygame.image.load(resource_path+"Images/"+self.picture+".png")
-        self.rect = self.image.get_rect()
-        self.rect.centerx = pos_x
-        self.rect.centery = pos_y
-        self.size = size
-        self.color = color
-
-    def update(self, thegame):
-        if self.rect.right > thegame.game_window.get_width()+100:
-            self.rect.left = random.randint(-150, -100)
-            if self.picture == "cloud":
-                random_y = random.randint(0, 100)
-            elif self.picture == "tree":
-                random_y = random.randint(thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 45,
-                                          thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 5)
-            else:
-                random_y = 0
-            self.rect.centery = random_y
-        self.rect.centerx += 2 * thegame.move_value
-
-
-# Simple class used for river debris objects
-class RiverDebris(pygame.sprite.Sprite):
-    def __init__(self, size, pos_x, pos_y, random_gen, picture, river_pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.picture = picture
-        self.size = size
-        self.river_pos = river_pos
-        self.random_gen = random_gen
-        self.preimage = pygame.image.load(resource_path+"Images/"+self.picture+".png")
-        self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
-                                            int(self.preimage.get_height()*self.size)))
-        self.rect = self.image.get_rect()
-        self.rect.x = pos_x
-        self.rect.y = pos_y
-
-    def update(self, riverres):
-        self.rect.y += 1
-        if self.rect.top > riverres[1]:
-            self.rect.y = -self.image.get_height()
-            self.rect.x = random.randint(self.random_gen[0], self.random_gen[1])
-
-
-# The Passenger class
-class Passenger():
-    def __init__(self, name, age, gender, picture):
-        self.name = name
-        self.age = age
-        self.gender = gender
-        self.picture = picture
-        self.afflictions = []
-        self.health = 100
-        self.food_divisions = 2
-        self.status = "Healthy"
-
-    def __str__(self):
-        return self.name
-
-
-# GUI tabs used in the Game.turn_menu
-class PassengerTab(pygame.Surface):
-    def __init__(self, position, size, passenger):
-        pygame.Surface.__init__(self, size)
-        self.position = position
-        self.size = size
-        self.passenger = passenger
-        self.text_font = pygame.font.Font(None, 15)
-        self.passenger_surface = pygame.Surface(self.size).convert()
-        self.rect = pygame.Rect(self.position, self.size)
-        self.option_image = pygame.transform.scale(pygame.image.load(resource_path+"Images/option_icon.png"), (20, 20))
-        self.option_rect = self.option_image.get_rect()
-
-
-# Vague option button used in the passenger_tabs in the turn menu
-class OptionButton():
-    def __init__(self, passenger_tab, option, size, hover):
-        self.passenger_tab = passenger_tab
-        self.option = option
-        self.size = size
-        self.hover = hover
-        self.passenger = passenger_tab.passenger
-        self.button_surface = pygame.Surface(self.size).convert()
-        if self.hover is not None and self.hover.option == self.option:
-            self.button_surface.fill((200, 200, 200))
-        else:
-            self.button_surface.fill((255, 255, 255))
-        self.button_rect = self.button_surface.get_rect()
-        self.button_font = pygame.font.Font(None, 12)
-        self.button_surface.blit(self.button_font.render(option, 1, (0, 0, 0)),
-                                 (self.size[0]/2, self.size[1]/2))
-
-
-# Displays the faces to select on character creation
-class ShowFaces():
-    def __init__(self, file_path, color=(0, 0, 0), x_pos=0, y_pos=100):
-        self.file_path = file_path
-        self.color = color
-        self.x_pos = x_pos
-        self.y_pos = y_pos
-        self.image = pygame.image.load(resource_path+"Images/Faces/"+self.file_path+".png")
-        self.face_rect = self.image.get_rect()
-
-    def update(self):
-        self.face_rect.centerx = self.x_pos + self.image.get_width()/2
-        self.face_rect.centery = self.y_pos + self.image.get_height()/2
-
-    def create(self):
-        self.image = pygame.image.load(resource_path+"Images/Faces/"+self.file_path+".png")
-        self.face_rect = self.image.get_rect()
-        self.update()
-
-
-# Tombstone objects used to hold information about dead passengers
-class Tombstones():
-    def __init__(self, position, status, passenger, cause_of_death, tomb_width, tomb_height):
-        self.position = position
-        self.status = status
-        self.passenger = passenger
-        self.cause_of_death = cause_of_death
-        self.x_pos = (-self.position * 40) + 1280
-        self.y_pos = 500
-        self.tomb_width = tomb_width
-        self.tomb_height = tomb_height
-        self.tomb_rect = pygame.Rect((self.x_pos, self.y_pos), (self.tomb_width, self.tomb_height))
-        self.tomb_rect.centerx = self.x_pos
-        self.tomb_rect.centery = self.y_pos + self.tomb_height / 2
-
-    def update(self, move_value):
-        self.x_pos += 2 * move_value
-        self.tomb_rect.centerx += 2 * move_value
-
-
-# Creates the shopping menu for each town
-class Shop():
-    def __init__(self, name, inventory, price_mod, group_inventory,
-                 group_money, item_prices, position, blit_position, money):
-        self.yvalue = 40
-        self.group_inventory = group_inventory
-        self.group_money = group_money
-        self.price_mod = price_mod
-        self.item_prices = item_prices
-        self.inventory = inventory
-        self.position = position
-        self.blit_position = blit_position
-        self.buy_button_list = []
-        self.sell_button_list = []
-        self.x_pos = (-self.position * 40) + 1280
-
-        # Gui stuff #
-
-        # Main Window
-        self.shop_surface = pygame.Surface((500, 300)).convert()
-        # Separator Line
-        self.sep_line = pygame.Surface((self.shop_surface.get_width(), 10)).convert()
-        self.sep_line.fill((0, 0, 0))
-        # Inventory container box
-        self.inv_container = pygame.Surface((self.shop_surface.get_width()-20,
-                                             self.shop_surface.get_height()/2 - 35)).convert()
-        self.inv_container.fill((255, 255, 255))
-        # Font creation
-        self.title_font = pygame.font.Font(None, 30)
-        self.text_font = pygame.font.Font(None, 20)
-
-        # Random name generation
-        if name == "":
-            self.name = string.capitalize(random.choice(shop_name_prefix) + "'s " + random.choice(shop_name_suffix))
-        else:
-            self.name = name
-        # Random inventory generation
-        if self.inventory == {}:
-            # TODO: The shop should have random items, not just what the group currently has
-            inventory_random = copy.copy(self.group_inventory)
-
-            # Assign a random value between 1,10 to each inventory item
-            for key in list(inventory_random.keys()):
-                inventory_random[key] = random.randint(0, 10)
-
-            # Inflate food count
-            inventory_random["Food"] *= 20
-            self.inventory = inventory_random
-
-        # Random money generation
-        if money is None:
-            self.money = random.randint(200, 500)
-        else:
-            self.name = name
-        self.render()
-
-    # Used to get the surface created in self.render()
-    def get_surface(self):
-        self.render()
-        return self.shop_surface
-
-    # Updates the group_inv and group_money to blit in self.render
-    def update(self, group_inv, group_m):
-        self.group_inventory = group_inv
-        self.group_money = group_m
-        self.render()
-
-    def move(self, move_value):
-        self.x_pos += (2 * move_value)
-        self.render()
-
-    def render(self):
-        self.yvalue = 40
-        self.shop_surface.fill((133, 94, 66))
-        self.shop_surface.blit(self.title_font.render(self.name + " - $"+str(self.money), 1, (0, 0, 255)), (10, 5))
-        self.shop_surface.blit(self.inv_container, (10, 25))
-        self.shop_surface.blit(self.inv_container, (10, self.shop_surface.get_height()/2 + 30))
-        self.shop_surface.blit(self.text_font.render("Inventory", 1, (255, 0, 0)), (10, 25))
-        self.shop_surface.blit(self.text_font.render("Amount", 1, (255, 0, 0)), (130, 25))
-        self.shop_surface.blit(self.text_font.render("Price", 1, (255, 0, 0)), (200, 25))
-
-        #Blit the shop's inventory
-        for key in list(self.inventory.keys()):
-            self.shop_surface.blit(self.text_font.render(key+":", 1, (0, 0, 0)), (10, self.yvalue))
-            self.shop_surface.blit(self.text_font.render(str(self.inventory[key]), 1,
-                                                        (0, 0, 0)), (150, self.yvalue))
-            self.shop_surface.blit(self.text_font.render("$"+str(self.item_prices[key]*self.price_mod), 1,
-                                                        (0, 0, 0)), (200, self.yvalue))
-            if len(self.buy_button_list) < len(self.inventory.keys()):
-                button_pos = tuple(map(sum, zip(self.blit_position, (250, self.yvalue))))
-                self.buy_button_list.append(TransactionButton(transaction="buy",
-                                                              item=key,
-                                                              image_position=(250, self.yvalue),
-                                                              rect_position=button_pos))
-            self.yvalue += 30
-
-        # Shows each button
-        for button in self.buy_button_list:
-            self.shop_surface.blit(button.image, button.image_position)
-
-        self.shop_surface.blit(self.sep_line, (0, float(self.shop_surface.get_height())/2))
-
-        self.shop_surface.blit(self.title_font.render("You - $"+str(self.group_money), 1, (0, 0, 255)),
-                               (10, float(self.shop_surface.get_height()) / 2 + 10))
-        self.shop_surface.blit(self.text_font.render("Inventory", 1, (255, 0, 0)),
-                               (10, float(self.shop_surface.get_height()) / 2 + 30))
-        self.shop_surface.blit(self.text_font.render("Amount", 1, (255, 0, 0)),
-                               (130, float(self.shop_surface.get_height()) / 2 + 30))
-        self.shop_surface.blit(self.text_font.render("Price", 1, (255, 0, 0)),
-                               (200, float(self.shop_surface.get_height()) / 2 + 30))
-
-        self.yvalue = (float(self.shop_surface.get_height())/2) + 45
-
-        #Blit the player's inventory
-        for key in list(self.group_inventory.keys()):
-            self.shop_surface.blit(self.text_font.render(key+":", 1, (0, 0, 0)), (10, self.yvalue))
-            self.shop_surface.blit(self.text_font.render(str(self.group_inventory[key]), 1,
-                                                         (0, 0, 0)), (150, self.yvalue))
-            self.shop_surface.blit(self.text_font.render("$"+str(self.item_prices[key]*self.price_mod), 1,
-                                                        (0, 0, 0)), (200, self.yvalue))
-            if len(self.sell_button_list) < len(self.inventory.keys()):
-                button_pos = tuple(map(sum, zip(self.blit_position, (250, self.yvalue))))
-                self.sell_button_list.append(TransactionButton(transaction="sell",
-                                                               item=key,
-                                                               image_position=(250, self.yvalue),
-                                                               rect_position=button_pos))
-            self.yvalue += 30
-
-        for button in self.sell_button_list:
-            self.shop_surface.blit(button.image, button.image_position)
-
-
-# Used to create the Buy and Sell buttons in the Shop() class
-class TransactionButton():
-    def __init__(self, transaction, item, image_position, rect_position):
-        self.transaction = transaction
-        self.item = item
-        self.image_position = image_position
-        self.rect_position = rect_position
-        self.filename = "buybutton.png"
-        if self.transaction == "sell":
-            self.filename = "sellbutton.png"
-        self.image = pygame.transform.scale(pygame.image.load(resource_path+"Images/"+self.filename), (25, 25))
-        self.image_rect = pygame.Rect(self.rect_position, self.image.get_size())
-
-
-# Used to create rectangles around the affliction names in the Game.passenger_info() function
-class AfflictionBox():
-    def __init__(self, affliction, font, rect_position=(0, 0)):
-        self.affliction = affliction
-        self.rect_position = rect_position
-        self.name = self.affliction.name
-        self.font = font
-        self.text_size = self.font.size(self.name)
-        self.text_rect = pygame.Rect(self.rect_position, self.text_size)
-
-    def update(self, rect_position):
-        self.rect_position = rect_position
-        self.text_rect.centerx = rect_position[0] + self.text_size[0]
-        self.text_rect.centery = rect_position[1] + self.text_size[1]
-
-
-# Creates buttons used in the Game menu_surface
-class MenuButton():
-    def __init__(self, image, image_size=(0, 0), rect_position=(0, 0), name=None):
-        self.image = image
-        self.rect_position = rect_position
-        self.image_size = image_size
-        self.name = name
-        self.rect = pygame.Rect(self.rect_position, self.image_size)
-
-    def update(self, rect_position, image_size):
-        self.rect_position = rect_position
-        self.image_size = image_size
-        self.rect = pygame.Rect(self.rect_position, self.image_size)
-
-
-# Creates buttons with rectangle attached for the logbook
-class ScrollButton():
-    def __init__(self, direction):
-        self.direction = direction
-        if self.direction == "up":
-            self.image = pygame.image.load(resource_path+"Images/uparrow.png")
-        elif self.direction == "down":
-            self.image = pygame.image.load(resource_path+"Images/downarrow.png")
-        self.rect = pygame.Rect((0, 0), self.image.get_size())
-
-    def update(self, position):
-        self.rect = pygame.Rect(position, self.image.get_size())
-
-
-# Buffalo object used in the Hunting minigame
-class Buffalo():
-    def __init__(self, pos_x, pos_y, picture, size):
-        self.picture = picture
-        self.size = size
-        self.max_health = 100 * self.size
-        self.health = self.max_health
-        self.preimage = pygame.image.load(resource_path+"Images/"+self.picture+"_buffalo.png")
-        self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
-                                                            int(self.preimage.get_height()*self.size)))
-        self.health_font = pygame.font.Font(None, 20)
-        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size))).convert()
-        self.health_bar_shader = pygame.Surface((self.health_bar_container.get_width() + 6,
-                                                 self.health_bar_container.get_height() + 6)).convert()
-        self.health_number = self.health_font.render(str(self.health), 1, (0, 0, 0))
-        self.health_bar_shader.fill((175, 175, 175))
-        self.health_bar = pygame.Surface(self.health_bar_container.get_size()).convert()
-        self.health_color = ()
-        if self.health >= 50:
-                    self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
-        else:
-            self.health_color = (255, float(self.health*2/self.max_health*255), 0)
-        try:
-            self.health_bar.fill(self.health_color)
-        except TypeError:
-            self.health_bar.fill((0, 0, 0))
-        self.health_bar_container.blit(self.health_bar, (0, 0))
-        self.value = 20 * self.size
-        self.rect = pygame.Rect((0, 0), self.image.get_size())
-        self.rect.x = pos_x
-        self.rect.y = pos_y
-        self.status = "alive"
-        self.target_y = pos_y
-
-    def update(self):
-        # Checks the health and updates the health bar
-        self.preimage = pygame.image.load(resource_path+"Images/"+self.status+"_buffalo.png")
-        self.image = pygame.transform.scale(self.preimage, (int(self.preimage.get_width()*self.size),
-                                                            int(self.preimage.get_height()*self.size)))
-        #Create health bar + shader + container
-        self.health_bar_container = pygame.Surface((int(75*self.size), int(12*self.size))).convert()
-        self.health_number = self.health_font.render(str(int(self.health)), 1, (255, 255, 255))
-        self.health_bar_shader = pygame.Surface((self.health_bar_container.get_width() + 6,
-                                                 self.health_bar_container.get_height() + 6)).convert()
-        self.health_bar_shader.fill((175, 175, 175))
-        if self.health <= 0:
-            self.health_bar = pygame.Surface((0, 0)).convert()
-        else:
-            self.health_bar = pygame.Surface((int(self.health_bar_container.get_width()/self.max_health*self.health),
-                                              self.health_bar_container.get_height())).convert()
-            # Set the color of the health_bar_container Red->Yellow->Red based on HP
-            if self.health >= 50:
-                self.health_color = (float((self.max_health-self.health)*2/self.max_health*255), 255, 0)
-            else:
-                self.health_color = (255, float(self.health*2/self.max_health*255), 0)
-
-            # Band-aid solution
-            # It tends to crash here when self.health_color isn't a valid RGB for some reason
-            try:
-                self.health_bar.fill(self.health_color)
-            except TypeError:
-                self.health_bar.fill((0, 0, 0))
-            self.health_bar_container.blit(self.health_bar, (0, 0))
-        self.health_bar_container.blit(self.health_number, (self.health_bar_container.get_width()/2 -
-                                                            self.health_number.get_width()/2,
-                                                            self.health_bar_container.get_height()/2 -
-                                                            self.health_number.get_height()/2))
-        self.health_bar_shader.blit(self.health_bar_container, (3, 3))
-
-        # Defines movement
-        if self.status == "alive":
-            # If buffalo is alive, move them until they reach their target X and Y positions
-            # TODO: this logic should be reworked
-            self.rect.x += float(3 - self.size)
-            if self.rect.y != self.target_y:
-                if self.rect.y < self.target_y:
-                    self.rect.y += float(3 - self.size)
-                elif self.rect.y > self.target_y:
-                    self.rect.y -= float(3 - self.size)
-            return self.rect.center
-
-
-# The random event class
-class Event():
-    def __init__(self, pos, name=None):
-        self.good_or_bad = random.choice([-1, 1])
-        self.surface = pygame.Surface((0, 0)).convert()
-        self.random_events = [self.river, self.house]
-        self.name = name
-        self.pos = pos
-        self.event_name = ""
-        if self.name is not None:
-            if self.name == "river":
-                self.river()
-            elif self.name == "house":
-                self.house()
-        else:
-            self.event = random.choice(self.random_events)()
-        self.event_pos = self.pos
-        self.x_pos = (-self.event_pos * 40) + 1280
-
-    def river(self):
-        self.surface = pygame.Surface((100, 400)).convert()
-        self.surface.fill((30, 144, 255))
-        self.event_name = "river"
-
-    def house(self):
-        self.surface = pygame.image.load(resource_path + "Images/house.png")
-        self.event_name = "house"
-
-    def update(self, move_value):
-        self.x_pos += 2 * move_value
-
-
-# Used to create interactive buttons in the RiverOptionMenu
-class RiverOptionButton():
-    def __init__(self, option, size, hover, pos):
-        self.option = option
-        self.size = size
-        self.hover = hover
-        self.size = size
-        self.surface = pygame.Surface(self.size).convert()
-        self.pos = pos
-        if self.hover:
-            self.surface.fill((200, 200, 200))
-        else:
-            self.surface.fill((255, 255, 255))
-        self.rect = pygame.Rect(self.pos, self.size)
-        self.button_font = pygame.font.Font(None, 25)
-        self.surface.blit(self.button_font.render(self.option, 1, (0, 0, 0)),
-                         (5, self.size[1]/2 - self.button_font.size("Lorem Ipsum")[1]/2))
-
-    def update(self, hover):
-        if hover:
-            self.surface.fill((200, 200, 200))
-        else:
-            self.surface.fill((255, 255, 255))
-        self.rect = pygame.Rect(self.pos, self.size)
-        self.button_font = pygame.font.Font(None, 25)
-        self.surface.blit(self.button_font.render(self.option, 1, (0, 0, 0)),
-                         (5, self.size[1]/2 - self.button_font.size("Lorem Ipsum")[1]/2))
-
 
 # Main Game class
 class Game():
@@ -629,7 +132,8 @@ class Game():
                                item_prices=self.item_prices,
                                position=1,
                                blit_position=self.shop_blit_position,
-                               money=None)]
+                               money=None,
+                               resource_path=resource_path)]
         self.affliction_button_list = []
         for _ in range(2):
             random_mod = round(random.uniform(0.1, 2.0), 3)
@@ -645,20 +149,21 @@ class Game():
                                                    item_prices=self.item_prices,
                                                    position=random_pos,
                                                    blit_position=self.shop_blit_position,
-                                                   money=None))
+                                                   money=None,
+                                                   resource_path=resource_path))
                         print"Town created at "+str(random_pos)
                         calculate_pos = False
                         break
 
         # Reading the tombstone file
         try:
-            with open("tombstone.dat", "rb") as file_name:
+            with open("tombstones.dat", "rb") as file_name:
                 self.tombstone_list = pickle.load(file_name)
                 for tomb in self.tombstone_list:
                     tomb.status = "Old"
         except (EOFError, IOError):
-            print"Error opening Tombstone.dat, pickling an empty list.."
-            with open("tombstone.dat", "wb") as file_name:
+            print"Error opening tombstones.dat, pickling an empty list.."
+            with open("tombstones.dat", "wb") as file_name:
                 self.tombstone_list = []
                 pickle.dump([], file_name)
 
@@ -673,7 +178,7 @@ class Game():
 
                 # Break at 100th loop to make sure we're not stuck here
                 if loop_counter >= 100:
-                    self.random_blit.append(Event(pos=rand_pos))
+                    self.random_blit.append(Event(pos=rand_pos, resource_path=resource_path))
                     valid_pos = True
 
                 # Checks the position to make sure it's not within 20 units of another
@@ -681,7 +186,7 @@ class Game():
                     if abs(rand_pos - pos) <= 20:
                         break
                 else:
-                    self.random_blit.append(Event(pos=rand_pos))
+                    self.random_blit.append(Event(pos=rand_pos, resource_path=resource_path))
                     valid_pos = True
                 loop_counter += 1
 
@@ -719,7 +224,7 @@ class Game():
         # Create a tab for each passenger
         for passenger in passenger_list:
             self.turn_passenger_list.append(PassengerTab(position=(x_value+5, y_value+5), size=(450, 75),
-                                                         passenger=passenger))
+                                                         passenger=passenger, resource_path=resource_path))
             y_value += 80
 
         # Checks for input and re-renders the turn menu (and friends)
@@ -1512,27 +1017,27 @@ class Game():
             if affliction.health_change < 0:
                 death_cause = affliction.name
                 break
-        append_tomb = Tombstones(position=self.group_pos, status="New",
-                                 passenger=passenger, cause_of_death=death_cause,
-                                 tomb_width=self.tomb_image.get_width(),
-                                 tomb_height=self.tomb_image.get_height())
+        append_tomb = Tombstone(position=self.group_pos, status="New",
+                                passenger=passenger, cause_of_death=death_cause,
+                                tomb_width=self.tomb_image.get_width(),
+                                tomb_height=self.tomb_image.get_height())
         self.tombstone_list.append(append_tomb)
         print "Creating tombstone at position: " + str(self.group_pos)
 
         # Saving the tombstone to the file
         try:
             # Builds a temporary list with everything in tombstone.dat and adds the new tombstone
-            with open("tombstone.dat", "rb") as file_name:
+            with open("tombstones.dat", "rb") as file_name:
                 temp_list = pickle.load(file_name)
                 temp_list.append(append_tomb)
 
             # Writes over the tombstone.dat with the new tombstone added
-            with open("tombstone.dat", "wb") as file_name:
+            with open("tombstones.dat", "wb") as file_name:
                 pickle.dump(temp_list, file_name)
 
         # Error handling
         except (EOFError, IOError) as error:
-            print"Error occurred when saving to tombstone.dat. No tombstones will be saved."
+            print"Error occurred when saving to tombstones.dat. No tombstones will be saved."
             print"Error: "+error
 
         self.change_list.append(passenger.name+" has died.")
@@ -2116,7 +1621,8 @@ class Game():
                                                   pos_y=random_y,
                                                   random_gen=river_random,
                                                   picture="river_debris",
-                                                  river_pos=river_pos[0]))
+                                                  river_pos=river_pos[0]),
+                                                  resource_path=resource_path)
 
         # Loop for the wading animation
         while option == "wade":
@@ -2549,13 +2055,14 @@ def main():
 
         random_x = random.randint(-100, the_game.game_window.get_width()-11)
         the_game.shape_group.add(BackgroundSprites(size=10,  color=(255, 0, 0),
-                                                   pos_x=random_x, pos_y=random_y, picture=rand_choice))
+                                                   pos_x=random_x, pos_y=random_y,
+                                                   picture=rand_choice, resource_path="resources/"))
 
     # Generates the afflictions from the afflictions_dict
     for affliction in afflictions_dict:
         stats = afflictions_dict[affliction]
-        afflictions_list.append(AfflictionsClass(name=affliction, chance_to_infect=stats[0], infectivity=stats[1],
-                                                 prime_season=stats[2], health_change=stats[3], recovery_time=stats[4]))
+        afflictions_list.append(Afflictions(name=affliction, chance_to_infect=stats[0], infectivity=stats[1],
+                                            prime_season=stats[2], health_change=stats[3], recovery_time=stats[4]))
 
     the_game.title_screen()
 
