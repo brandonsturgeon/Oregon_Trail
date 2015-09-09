@@ -1,4 +1,5 @@
 from pygame import sprite, image
+from random import randint
 
 class BackgroundSprites(sprite.Sprite):
     """ Sprites used for the background """
@@ -15,12 +16,12 @@ class BackgroundSprites(sprite.Sprite):
 
     def update(self, thegame):
         if self.rect.right > thegame.game_window.get_width()+100:
-            self.rect.left = random.randint(-150, -100)
+            self.rect.left = randint(-150, -100)
             if self.picture == "cloud":
-                random_y = random.randint(0, 100)
+                random_y = randint(0, 100)
             elif self.picture == "tree":
-                random_y = random.randint(thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 45,
-                                          thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 5)
+                random_y = randint(thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 45,
+                                   thegame.game_window.get_height() - thegame.game_window.get_height() / 3 - 5)
             else:
                 random_y = 0
             self.rect.centery = random_y
