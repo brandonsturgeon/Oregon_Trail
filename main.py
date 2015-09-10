@@ -684,7 +684,7 @@ class Game():
                     format_args = (passenger_name, gain_or_loss,
                                    str(abs(total_hp_change)),
                                    str(passenger.health))
-                    change_string = "{} has {} {} health for a total of {}".format(format_args)
+                    change_string = "{} has {} {} health for a total of {}".format(*format_args)
                     self.change_list.append(change_string)
 
             # Did they dead?
@@ -707,7 +707,7 @@ class Game():
                             if x.name == affliction.name:
                                 x.recovery_time = rand_duration
                                 format_args = (passenger.name, affliction.name, rand_duration)
-                                change_string = "{} has contracted {} for {} days.".format(format_args)
+                                change_string = "{} has contracted {} for {} days.".format(*format_args)
                                 self.change_list.append(change_string)
                         group_afflictions.append(affliction)
 
@@ -717,7 +717,7 @@ class Game():
             t = "-"*50
             self.logbook.append(t)
             format_args = (self.days_since_start, self.season, self.year)
-            change_string = "Day: {}, {} of {}".format(format_args)
+            change_string = "Day: {}, {} of {}".format(*format_args)
             self.logbook.append(change_string)
 
             if len(self.change_list) == 0:
