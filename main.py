@@ -160,6 +160,7 @@ class Game():
                 self.tombstone_list = pickle.load(file_name)
                 for tomb in self.tombstone_list:
                     tomb.status = "Old"
+        # If the file doesn't exist
         except (EOFError, IOError):
             print"Error opening tombstones.dat, pickling an empty list.."
             with open("tombstones.dat", "wb") as file_name:
@@ -331,7 +332,7 @@ class Game():
             hunting_rect = pygame.Rect((self.turn_menu_surface_offsetx, (self.turn_menu_surface.get_height() +
                                                                          self.turn_menu_surface_offsety -
                                                                          font.size("Go Hunting")[1]*2)),
-                                       font.size("Go Hunting"))
+                                                                         font.size("Go Hunting"))
             # Displays random events
             for event in self.random_blit:
                 if event.event_name == "house":
@@ -634,6 +635,7 @@ class Game():
             else:
                 passenger.food_divisions = 0
 
+            # Remove and reset Hunger and Well fed afflictions
             for x in ("Hunger", "Well Fed"):
                 for y in passenger.afflictions:
                     if x == y.name:
@@ -679,10 +681,11 @@ class Game():
                     passenger.health = 100
 
                 if passenger.health != 100:
-                    self.change_list.append(passenger.name + " has " + gain_or_loss +
-                                            str(abs(total_hp_change)) +
-                                            " health for a total of " +
-                                            str(passenger.health))
+                    format_args = (passenger_name, gain_or_loss,
+                                   str(abs(total_hp_change)),
+                                   str(passenger.health))
+                    change_string = "{} has {} {} health for a total of {}".format(format_args)
+                    self.change_list.append(change_string)
 
             # Did they dead?
             if passenger.health <= 0:
@@ -703,15 +706,20 @@ class Game():
                         for x in passenger.afflictions:
                             if x.name == affliction.name:
                                 x.recovery_time = rand_duration
-                                self.change_list.append(str(passenger.name) + " has contracted " +
-                                                        str(affliction.name) + " for " + str(rand_duration)+" days.")
+                                format_args = (passenger.name, affliction.name, rand_duration)
+                                change_string = "{} has contracted {} for {} days.".format(format_args)
+                                self.change_list.append(change_string)
                         group_afflictions.append(affliction)
 
         # Returns and saves all of the things that happened this turn
         if len(passenger_list) != 0:
+            # Logbook header -'s and date
             t = "-"*50
             self.logbook.append(t)
-            self.logbook.append("Day : "+str(self.days_since_start)+", "+self.season+" of "+str(self.year))
+            format_args = (self.days_since_start, self.season, self.year)
+            change_string = "Day: {}, {} of {}".format(format_args)
+            self.logbook.append(change_string)
+
             if len(self.change_list) == 0:
                 self.logbook.append("Nothing happened.")
             else:
@@ -837,7 +845,7 @@ class Game():
         # Creates and displays the faces
         for path, counter in zip(picture_list, range(len(picture_list))):
             face_list.append(ShowFaces(file_path=path,
-                                       x_pos=(picture_list.index(path) * 100 + 50), 
+                                       x_pos=(picture_list.index(path) * 100 + 50),
                                        y_pos=100,
                                        resource_path=resource_path))
             face_list[counter].create()
@@ -857,9 +865,13 @@ class Game():
                     quit()
 
                 # If a mouse button is clicked, or the enter button is hit
-                if (event.type == pygame.MOUSEBUTTONDOWN) or \
-                        (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
+                # TODO: check to make sure this rework works
 
+
+                ######## LEFT OFF WIP HERE ############
+                clicked_or_return = (event.type == pygame.MOUSEBUTTONDOWN,
+                                     (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN))
+                if any(clicked_or_return):
                     # If the user clicks, and it's not on the confirm button
                     if event.type == pygame.MOUSEBUTTONDOWN and not confirm_button_rect.collidepoint(
                             self.mouse_x, self.mouse_y):
