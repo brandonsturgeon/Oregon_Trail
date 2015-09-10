@@ -1,4 +1,5 @@
 from pygame import sprite, image, transform
+from random import randint
 
 class RiverDebris(sprite.Sprite):
     """ Simple class used for river debris objects """
@@ -20,5 +21,5 @@ class RiverDebris(sprite.Sprite):
         self.rect.y += 1
         if self.rect.top > riverres[1]:
             self.rect.y = -self.image.get_height()
-            self.rect.x = random.randint(self.random_gen[0], self.random_gen[1])
+            self.rect.x = randint(self.random_gen[0], self.random_gen[1])
 

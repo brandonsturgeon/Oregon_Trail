@@ -3,12 +3,13 @@ from pygame import image, font, Surface, Rect
 
 class Buffalo():
     """ Buffalo object used in the Hunting minigame """
-    def __init__(self, pos_x, pos_y, picture, size):
+    def __init__(self, pos_x, pos_y, picture, size, resource_path):
         self.picture = picture
         self.size = size
+        self.resource_path = resource_path
         self.max_health = 100 * self.size
         self.health = self.max_health
-        self.preimage = image.load(resource_path+"Images/"+self.picture+"_buffalo.png")
+        self.preimage = image.load(self.resource_path+"Images/"+self.picture+"_buffalo.png")
         self.image = scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         self.health_font = font.Font(None, 20)
@@ -37,7 +38,7 @@ class Buffalo():
 
     def update(self):
         # Checks the health and updates the health bar
-        self.preimage = image.load(resource_path+"Images/"+self.status+"_buffalo.png")
+        self.preimage = image.load(self.resource_path+"Images/"+self.status+"_buffalo.png")
         self.image = scale(self.preimage, (int(self.preimage.get_width()*self.size),
                                                             int(self.preimage.get_height()*self.size)))
         #Create health bar + shader + container

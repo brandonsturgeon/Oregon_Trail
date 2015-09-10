@@ -1403,7 +1403,8 @@ class Game():
             random_size = random.uniform(0.5, 1.5)
             random_y = random.randint(ref_buffalo.get_height(), (self.game_window.get_height() * 3/4))
             random_x = random.randint(-self.game_window.get_width()/2, self.game_window.get_width()/2)
-            buffalo_list.append(Buffalo(pos_x=random_x, pos_y=random_y, picture="alive", size=random_size))
+            buffalo_list.append(Buffalo(pos_x=random_x, pos_y=random_y,
+                                        picture="alive", size=random_size, resource_path=resource_path))
 
         # Creates an entry in gun_shot_group for every buffalo
         for b in buffalo_list:
@@ -1622,8 +1623,8 @@ class Game():
                                                   pos_y=random_y,
                                                   random_gen=river_random,
                                                   picture="river_debris",
-                                                  river_pos=river_pos[0]),
-                                                  resource_path=resource_path)
+                                                  river_pos=river_pos[0],
+                                                  resource_path=resource_path))
 
         # Loop for the wading animation
         while option == "wade":
